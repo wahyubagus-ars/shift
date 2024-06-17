@@ -18,5 +18,11 @@ func ConnectToMysql() *gorm.DB {
 		log.Fatal("Error connecting to database. Error: ", err)
 	}
 
+	/**
+	To run migration 'up' and 'down' action
+	migrate -database "mysql://root@tcp(localhost:3306)/shift_local" path db/migrations up
+	migrate -database "mysql://root@tcp(localhost:3306)/shift_local" path db/migrations down
+	*/
+
 	return db
 }
