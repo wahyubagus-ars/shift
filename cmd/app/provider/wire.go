@@ -8,6 +8,7 @@ import (
 	"go-shift/cmd/app/controller"
 	"go-shift/cmd/app/repository"
 	"go-shift/cmd/app/service"
+	"go-shift/config"
 )
 
 type Initialization struct {
@@ -15,6 +16,8 @@ type Initialization struct {
 	authSvc  service.AuthService
 	userRepo repository.UserRepository
 }
+
+var db = wire.NewSet(config.ConnectToMysql)
 
 func NewInitialization(
 	authCtrl controller.AuthController,
@@ -29,5 +32,5 @@ func NewInitialization(
 }
 
 func Wire() *Initialization {
-	panic(wire.Build(NewInitialization, ProviderSet))
+	panic(wire.Build(NewInitialization, db, ProviderSet))
 }

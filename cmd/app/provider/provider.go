@@ -5,6 +5,7 @@ import (
 	"go-shift/cmd/app/controller"
 	"go-shift/cmd/app/repository"
 	"go-shift/cmd/app/service"
+	"gorm.io/gorm"
 	"sync"
 )
 
@@ -49,9 +50,11 @@ func provideAuthService(ur repository.UserRepository) *service.AuthServiceImpl {
 	return as
 }
 
-func provideUserRepository() *repository.UserRepositoryImpl {
+func provideUserRepository(db *gorm.DB) *repository.UserRepositoryImpl {
 	urOnce.Do(func() {
-		ur = &repository.UserRepositoryImpl{}
+		ur = &repository.UserRepositoryImpl{
+			Db: db,
+		}
 	})
 
 	return ur
