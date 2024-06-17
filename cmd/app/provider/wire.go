@@ -12,9 +12,9 @@ import (
 )
 
 type Initialization struct {
-	authCtrl controller.AuthController
-	authSvc  service.AuthService
-	userRepo repository.UserRepository
+	AuthCtrl controller.AuthController
+	AuthSvc  service.AuthService
+	UserRepo repository.UserRepository
 }
 
 var db = wire.NewSet(config.ConnectToMysql)
@@ -25,9 +25,9 @@ func NewInitialization(
 	userRepo repository.UserRepository,
 ) *Initialization {
 	return &Initialization{
-		authCtrl: authCtrl,
-		authSvc:  authService,
-		userRepo: userRepo,
+		AuthCtrl: authCtrl,
+		AuthSvc:  authService,
+		UserRepo: userRepo,
 	}
 }
 

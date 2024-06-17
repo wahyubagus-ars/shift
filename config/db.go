@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -11,7 +12,17 @@ import (
 func ConnectToMysql() *gorm.DB {
 	godotenv.Load()
 	var err error
-	var dsn = os.ExpandEnv("host=${DB_HOST} user=${DB_USERNAME} password=${DB_PASSWORD} dbname=${DB_NAME} port=${DB_PORT} sslmode=disable TimeZone=Asia/Jakarta")
+	var dbUser = os.Getenv("DB_USERNAME")
+	var dbPassword = os.Getenv("DB_PASSWORD")
+	var dbHost = os.Getenv("DB_HOST")
+	var dbPort = os.Getenv("DB_PORT")
+	var dbName = os.Getenv("DB_NAME")
+
+	var dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		dbUser, dbPassword, dbHost, dbPort, dbName)
+
+	// Print the DSN string for debugging
+	fmt.Println("DSN:", dsn)
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {

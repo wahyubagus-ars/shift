@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  shift-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8087:8080"
+    depends_on:
+      - mysql
+      - mongo
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27018
+      - MONGO_DB=shift_local
+    volumes:
+      - ./:/app
+    networks:
+      - shift-net
+
+  mysql:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Passw0rd123
+      MYSQL_DATABASE: shift_local
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - shift-net
+
+  mongo:
+    image: mongo:7
+    restart: always
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - shift-net
+
+volumes:
+  mysql_data:
+  mongo_data:
+
+networks:
+  shift-net:
