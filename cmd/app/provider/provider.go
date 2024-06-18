@@ -5,6 +5,7 @@ import (
 	"go-shift/cmd/app/controller"
 	"go-shift/cmd/app/repository"
 	"go-shift/cmd/app/service"
+	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 	"sync"
 )
@@ -50,10 +51,11 @@ func provideAuthService(ur repository.UserRepository) *service.AuthServiceImpl {
 	return as
 }
 
-func provideUserRepository(db *gorm.DB) *repository.UserRepositoryImpl {
+func provideUserRepository(mysql *gorm.DB, mongo *mongo.Client) *repository.UserRepositoryImpl {
 	urOnce.Do(func() {
 		ur = &repository.UserRepositoryImpl{
-			Db: db,
+			Mysql:   mysql,
+			MongoDB: mongo.Database("shift_local"),
 		}
 	})
 
