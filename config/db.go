@@ -24,9 +24,6 @@ func ConnectToMysql() *gorm.DB {
 	var dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		dbUser, dbPassword, dbHost, dbPort, dbName)
 
-	// Print the DSN string for debugging
-	fmt.Println("DSN:", dsn)
-
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Error connecting to database. Error: ", err)
@@ -62,6 +59,5 @@ func ConnectToMongoDb() *mongo.Client {
 		}
 	}()
 
-	fmt.Println("success connecting")
 	return client
 }
