@@ -30,9 +30,12 @@ func ConnectToMysql() *gorm.DB {
 	}
 
 	/**
+	Create a new migration
+		migrate create -ext sql -dir db/migrations/mysql -seq <MIGRATION_NAME>
+
 	To run migration 'up' and 'down' action
-	migrate -database "mysql://root@tcp(localhost:3306)/shift_local" path db/migrations up
-	migrate -database "mysql://root@tcp(localhost:3306)/shift_local" path db/migrations down
+		migrate -database "mysql://root@tcp(localhost:3306)/shift_local" -path db/migrations/mysql up
+		migrate -database "mysql://root@tcp(localhost:3306)/shift_local" -path db/migrations/mysql down
 	*/
 
 	return db
