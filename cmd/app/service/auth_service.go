@@ -3,6 +3,12 @@ package service
 import (
 	"github.com/gin-gonic/gin"
 	"go-shift/cmd/app/repository"
+	"sync"
+)
+
+var (
+	authService     *AuthServiceImpl
+	authServiceOnce sync.Once
 )
 
 type AuthService interface {
@@ -10,7 +16,7 @@ type AuthService interface {
 }
 
 type AuthServiceImpl struct {
-	UserRepo repository.UserRepository
+	userRepository repository.UserRepository
 }
 
 func (as *AuthServiceImpl) Login(c *gin.Context) {
@@ -18,4 +24,14 @@ func (as *AuthServiceImpl) Login(c *gin.Context) {
 		"response_key": "success",
 		"message":      "login api",
 	})
+}
+
+func ProvideAuthService(ur repository.UserRepository) *AuthServiceImpl {
+	authServiceOnce.Do(func() {
+		authService = &AuthServiceImpl{
+			userRepository: ur,
+		}
+	})
+
+	return authService
 }

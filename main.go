@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/joho/godotenv"
-	"go-shift/cmd/app/provider"
 	"go-shift/cmd/app/routes"
+	"go-shift/config"
 	"os"
 )
 
@@ -14,7 +14,7 @@ func init() {
 func main() {
 	port := os.Getenv("APP_PORT")
 
-	initialization := provider.Wire()
+	initialization := config.Init()
 	r := routes.Init(initialization)
 
 	r.Run(":" + port)

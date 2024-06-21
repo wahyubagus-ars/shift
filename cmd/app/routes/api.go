@@ -2,10 +2,10 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-shift/cmd/app/provider"
+	"go-shift/config"
 )
 
-func Init(init *provider.Initialization) *gin.Engine {
+func Init(init *config.Initialization) *gin.Engine {
 	r := gin.New()
 
 	api := r.Group("/api")
@@ -19,7 +19,8 @@ func Init(init *provider.Initialization) *gin.Engine {
 
 		auth := api.Group("/auth")
 		{
-			auth.GET("/login", init.AuthCtrl.Login)
+			auth.GET("/login", init.AuthController.LoginHandler)
+			auth.GET("/login-with-google", init.GoogleOauthController.LoginHandler)
 		}
 	}
 
