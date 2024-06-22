@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS user_accounts (
     id INT PRIMARY KEY AUTO_INCREMENT,
     email VARCHAR(255) UNIQUE NOT NULL,
     email_verified_at DATE,
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(255),
     authentication_id INT NOT NULL,
 
     created_at DATE NOT NULL,
