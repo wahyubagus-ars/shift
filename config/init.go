@@ -5,6 +5,7 @@ import (
 	"go-shift/cmd/app/controller"
 	"go-shift/cmd/app/repository"
 	"go-shift/cmd/app/service"
+	apiservice "go-shift/cmd/app/service/api_service"
 	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 )
@@ -18,6 +19,7 @@ type Initialization struct {
 
 	RedisService       service.RedisService
 	AuthService        service.AuthService
+	OauthApiService    apiservice.OauthApiService
 	GoogleOauthService service.AuthService
 
 	AuthController        controller.AuthController
@@ -33,7 +35,8 @@ func Init() *Initialization {
 
 	redisService := service.ProvideRedisService(connectToRedis)
 	authService := service.ProvideAuthService(userRepository)
-	googleOauthService := service.ProvideGoogleOauthService(userRepository, redisService)
+	oauthApiService := apiservice.ProvideOauthApiService()
+	googleOauthService := service.ProvideGoogleOauthService(redisService, oauthApiService, userRepository)
 
 	authController := controller.ProvideAuthController(authService)
 	googleOauthController := controller.ProvideGoogleOauthController(googleOauthService)
