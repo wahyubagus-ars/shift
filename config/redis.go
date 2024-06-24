@@ -1,14 +1,28 @@
 package config
 
 import (
+	"fmt"
 	"github.com/redis/go-redis/v9"
+	log "github.com/sirupsen/logrus"
+	"os"
+	"strconv"
 )
 
 func ConnectToRedis() *redis.Client {
+	redisHost := os.Getenv("REDIS_HOST")
+	redisPort := os.Getenv("REDIS_PORT")
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+	redisDb := os.Getenv("REDIS_DB")
+
+	redisDbInt, err := strconv.Atoi(redisDb)
+	if err != nil {
+		log.Error("Error when convert redis db to integer")
+	}
+
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       2,  // use default DB
+		Addr:     fmt.Sprintf("%s:%s", redisHost, redisPort),
+		Password: redisPassword,
+		DB:       redisDbInt,
 	})
 
 	return rdb
