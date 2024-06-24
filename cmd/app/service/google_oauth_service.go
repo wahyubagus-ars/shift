@@ -73,6 +73,8 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 		pkg.PanicException(constant.UnknownError)
 	}
 
+	/** TODO: need to insert token data to auth_token table mysql */
+
 	hashedEmail := pkg.HashData(payload.Email)
 
 	batchDataToken := make(map[string]interface{})
