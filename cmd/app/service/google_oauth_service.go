@@ -8,8 +8,10 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"go-shift/cmd/app/domain/dao"
 	"go-shift/cmd/app/domain/dto"
 	"go-shift/cmd/app/repository"
+	"go-shift/pkg"
 	"gorm.io/gorm"
 	"net/http"
 	"os"
@@ -23,6 +25,7 @@ var (
 )
 
 type GoogleOauthServiceImpl struct {
+	redisService   RedisService
 	userRepository repository.UserRepository
 }
 
@@ -45,15 +48,18 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 		return
 	}
 
-	_, err = svc.userRepository.FindUserByEmail(payload.Email)
+	var userAccount dao.UserAccount
+	userAccount, err = svc.userRepository.FindUserByEmail(payload.Email)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			svc.userRepository.SaveInitiateUser(payload.Email, 1)
+			userAccount, err = svc.userRepository.SaveInitiateUser(payload.Email, 1)
 		}
 	}
 
-	// TODO: add process to save token data to db redis
+	var marshaledData string
+	marshaledData, err = pkg.MarshalToString(userAccount)
+	redisService.PutCache("ACCESS_TOKEN"+":"+pkg.HashData(payload.Email), marshaledData, c)
 
 	c.JSON(200, gin.H{
 		"response_key": "success",
@@ -123,9 +129,10 @@ func getTokenPayload(token string) (dto.JWTClaimsPayload, error) {
 	return claims, nil
 }
 
-func ProvideGoogleOauthService(ur repository.UserRepository) *GoogleOauthServiceImpl {
+func ProvideGoogleOauthService(ur repository.UserRepository, redisService RedisService) *GoogleOauthServiceImpl {
 	googleServiceOnce.Do(func() {
 		googleService = &GoogleOauthServiceImpl{
+			redisService:   redisService,
 			userRepository: ur,
 		}
 	})
