@@ -14,12 +14,12 @@ type GoogleOauthControllerImpl struct {
 	AuthSvc service.AuthService
 }
 
-func (ac *GoogleOauthControllerImpl) LoginHandler(c *gin.Context) {
-	ac.AuthSvc.Login(c)
+func (controller *GoogleOauthControllerImpl) LoginHandler(c *gin.Context) {
+	controller.AuthSvc.Login(c)
 }
 
-func (ac *GoogleOauthControllerImpl) CallbackHandler(c *gin.Context) {
-	ac.AuthSvc.Callback(c)
+func (controller *GoogleOauthControllerImpl) CallbackHandler(c *gin.Context) {
+	controller.AuthSvc.Callback(c)
 }
 
 func ProvideGoogleOauthController(as service.AuthService) *GoogleOauthControllerImpl {

@@ -20,21 +20,21 @@ type AuthServiceImpl struct {
 	userRepository repository.UserRepository
 }
 
-func (as *AuthServiceImpl) Login(c *gin.Context) {
+func (svc *AuthServiceImpl) Login(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"response_key": "success",
 		"message":      "login api",
 	})
 }
 
-func (as *AuthServiceImpl) Callback(c *gin.Context) {
+func (svc *AuthServiceImpl) Callback(c *gin.Context) {
 
 }
 
-func ProvideAuthService(ur repository.UserRepository) *AuthServiceImpl {
+func ProvideAuthService(userRepository repository.UserRepository) *AuthServiceImpl {
 	authServiceOnce.Do(func() {
 		authService = &AuthServiceImpl{
-			userRepository: ur,
+			userRepository: userRepository,
 		}
 	})
 

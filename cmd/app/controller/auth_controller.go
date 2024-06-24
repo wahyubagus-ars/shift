@@ -19,11 +19,11 @@ type AuthControllerImpl struct {
 	AuthSvc service.AuthService
 }
 
-func (ac *AuthControllerImpl) LoginHandler(c *gin.Context) {
-	ac.AuthSvc.Login(c)
+func (controller *AuthControllerImpl) LoginHandler(c *gin.Context) {
+	controller.AuthSvc.Login(c)
 }
 
-func (ac *AuthControllerImpl) CallbackHandler(c *gin.Context) {
+func (controller *AuthControllerImpl) CallbackHandler(c *gin.Context) {
 
 }
 

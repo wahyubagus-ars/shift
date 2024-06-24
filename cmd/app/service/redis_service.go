@@ -22,12 +22,12 @@ type RedisServiceImpl struct {
 	redisdb *redis.Client
 }
 
-func (r *RedisServiceImpl) GetCache(key string) (interface{}, error) {
+func (svc *RedisServiceImpl) GetCache(key string) (interface{}, error) {
 	return "test", nil
 }
 
-func (r *RedisServiceImpl) PutCache(key string, data interface{}, c *gin.Context) error {
-	err := r.redisdb.Set(c, key, data, 0).Err()
+func (svc *RedisServiceImpl) PutCache(key string, data interface{}, c *gin.Context) error {
+	err := svc.redisdb.Set(c, key, data, 0).Err()
 	if err != nil {
 		log.Error("Error when try to put data to redis cache: ", err)
 		return err
@@ -36,8 +36,8 @@ func (r *RedisServiceImpl) PutCache(key string, data interface{}, c *gin.Context
 	return nil
 }
 
-func (r *RedisServiceImpl) PutCacheBatch(data map[string]interface{}, c *gin.Context) error {
-	err := r.redisdb.MSet(c, data).Err()
+func (svc *RedisServiceImpl) PutCacheBatch(data map[string]interface{}, c *gin.Context) error {
+	err := svc.redisdb.MSet(c, data).Err()
 	if err != nil {
 		log.Error("Error when try to put batch data to redis cache: ", err)
 		return err
