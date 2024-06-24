@@ -15,6 +15,7 @@ var (
 type RedisService interface {
 	GetCache(key string) (interface{}, error)
 	PutCache(key string, data interface{}, c *gin.Context) error
+	PutCacheBatch(data map[string]interface{}, c *gin.Context) error
 }
 
 type RedisServiceImpl struct {
@@ -28,7 +29,18 @@ func (r *RedisServiceImpl) GetCache(key string) (interface{}, error) {
 func (r *RedisServiceImpl) PutCache(key string, data interface{}, c *gin.Context) error {
 	err := r.redisdb.Set(c, key, data, 0).Err()
 	if err != nil {
-		log.Error("Error when try to put data to redis cache", err)
+		log.Error("Error when try to put data to redis cache: ", err)
+		return err
+	}
+
+	return nil
+}
+
+func (r *RedisServiceImpl) PutCacheBatch(data map[string]interface{}, c *gin.Context) error {
+	err := r.redisdb.MSet(c, data).Err()
+	if err != nil {
+		log.Error("Error when try to put batch data to redis cache: ", err)
+		return err
 	}
 
 	return nil

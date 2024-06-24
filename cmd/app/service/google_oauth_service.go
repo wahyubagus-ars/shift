@@ -8,6 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"go-shift/cmd/app/constant"
 	"go-shift/cmd/app/domain/dao"
 	"go-shift/cmd/app/domain/dto"
 	"go-shift/cmd/app/repository"
@@ -30,6 +31,8 @@ type GoogleOauthServiceImpl struct {
 }
 
 func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+
 	code := c.Request.Header["Authorization-Code"]
 
 	clientId := os.Getenv("GOOGLE_OAUTH_CLIENT_ID")
@@ -38,14 +41,15 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 
 	token, err := GetAccessToken(code[0], clientId, clientSecret, getTokenUrl)
 	if err != nil {
-		return
+		log.Error("Error when get access token")
+		pkg.PanicException(constant.UnknownError)
 	}
 
 	payload, err := getTokenPayload(token.IdToken)
 
 	if err != nil {
 		log.Error("Error when try decode token")
-		return
+		pkg.PanicException(constant.UnknownError)
 	}
 
 	var userAccount dao.UserAccount
@@ -54,12 +58,34 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			userAccount, err = svc.userRepository.SaveInitiateUser(payload.Email, 1)
+			if err != nil {
+				pkg.PanicException(constant.UnknownError)
+			}
+		} else {
+			pkg.PanicException(constant.UnknownError)
 		}
 	}
 
 	var marshaledData string
 	marshaledData, err = pkg.MarshalToString(userAccount)
-	redisService.PutCache("ACCESS_TOKEN"+":"+pkg.HashData(payload.Email), marshaledData, c)
+	if err != nil {
+		log.Error("Error when try to marshalling userAccount data")
+		pkg.PanicException(constant.UnknownError)
+	}
+
+	hashedEmail := pkg.HashData(payload.Email)
+
+	batchDataToken := make(map[string]interface{})
+	batchDataToken[constant.UserAccountData.GetRedisKey()+":"+hashedEmail] = marshaledData
+	batchDataToken[constant.AccessToken.GetRedisKey()+":"+hashedEmail] = token.AccessToken
+	batchDataToken[constant.RefreshToken.GetRedisKey()+":"+hashedEmail] = token.RefreshToken
+
+	//err = redisService.PutCache(constant.UserAccountData.GetRedisKey()+" : "+pkg.HashData(payload.Email), marshaledData, c)
+	err = redisService.PutCacheBatch(batchDataToken, c)
+	if err != nil {
+		log.Error("Error when try to put userAccount's data in redis")
+		pkg.PanicException(constant.UnknownError)
+	}
 
 	c.JSON(200, gin.H{
 		"response_key": "success",
@@ -122,7 +148,7 @@ func getTokenPayload(token string) (dto.JWTClaimsPayload, error) {
 	var claims dto.JWTClaimsPayload
 	err = json.Unmarshal(payload, &claims)
 	if err != nil {
-		log.Error("Error unmarshaling payload:", err)
+		log.Error("Error when unmarshalling payload:", err)
 		return dto.JWTClaimsPayload{}, nil
 	}
 

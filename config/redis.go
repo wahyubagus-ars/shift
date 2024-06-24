@@ -17,6 +17,7 @@ func ConnectToRedis() *redis.Client {
 	redisDbInt, err := strconv.Atoi(redisDb)
 	if err != nil {
 		log.Error("Error when convert redis db to integer")
+		panic(err)
 	}
 
 	rdb := redis.NewClient(&redis.Options{
