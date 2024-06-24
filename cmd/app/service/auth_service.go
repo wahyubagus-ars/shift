@@ -13,6 +13,7 @@ var (
 
 type AuthService interface {
 	Login(c *gin.Context)
+	Callback(c *gin.Context)
 }
 
 type AuthServiceImpl struct {
@@ -24,6 +25,10 @@ func (as *AuthServiceImpl) Login(c *gin.Context) {
 		"response_key": "success",
 		"message":      "login api",
 	})
+}
+
+func (as *AuthServiceImpl) Callback(c *gin.Context) {
+
 }
 
 func ProvideAuthService(ur repository.UserRepository) *AuthServiceImpl {

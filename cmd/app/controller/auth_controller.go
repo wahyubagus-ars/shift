@@ -12,6 +12,7 @@ var (
 
 type AuthController interface {
 	LoginHandler(c *gin.Context)
+	CallbackHandler(c *gin.Context)
 }
 
 type AuthControllerImpl struct {
@@ -20,6 +21,10 @@ type AuthControllerImpl struct {
 
 func (ac *AuthControllerImpl) LoginHandler(c *gin.Context) {
 	ac.AuthSvc.Login(c)
+}
+
+func (ac *AuthControllerImpl) CallbackHandler(c *gin.Context) {
+
 }
 
 func ProvideAuthController(as service.AuthService) *AuthControllerImpl {

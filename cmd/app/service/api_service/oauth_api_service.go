@@ -26,12 +26,13 @@ func (svc *OauthApiServiceImpl) GetAccessToken(code string, clientId string, cli
 	var client = &http.Client{}
 	var data dto.AccessTokenDto
 
+	/** TODO: Need to refactor redirect_uri value to be dynamic */
 	body := fmt.Sprintf(`{
 		"client_id": "%s",
 		"client_secret": "%s",
 		"code": "%s",
 		"grant_type": "authorization_code",
-		"redirect_uri": "https://localhost:8000"
+		"redirect_uri": "http://localhost:8081/api/auth/google-callback"
 	}`, clientId, clientSecret, code)
 
 	bodyBytes := []byte(body)

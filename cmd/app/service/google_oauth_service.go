@@ -32,6 +32,7 @@ type GoogleOauthServiceImpl struct {
 func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 	defer pkg.PanicHandler(c)
 
+	/** TODO: need to move the Authorization-Code to query params*/
 	code := c.Request.Header["Authorization-Code"]
 
 	clientId := os.Getenv("GOOGLE_OAUTH_CLIENT_ID")
@@ -91,6 +92,12 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 		"message":      "login api google",
 		"data":         token,
 	})
+}
+
+func (as *GoogleOauthServiceImpl) Callback(c *gin.Context) {
+	authorizationCode := c.Query("code")
+	c.Request.Header.Add("Authorization-Code", authorizationCode)
+	as.Login(c)
 }
 
 func GetTokenPayload(token string) (dto.JWTClaimsPayload, error) {

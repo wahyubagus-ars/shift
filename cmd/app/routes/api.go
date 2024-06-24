@@ -21,6 +21,7 @@ func Init(init *config.Initialization) *gin.Engine {
 		{
 			auth.GET("/login", init.AuthController.LoginHandler)
 			auth.GET("/login-with-google", init.GoogleOauthController.LoginHandler)
+			auth.GET("/google-callback", init.GoogleOauthController.CallbackHandler)
 		}
 	}
 

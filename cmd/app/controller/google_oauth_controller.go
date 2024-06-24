@@ -18,6 +18,10 @@ func (ac *GoogleOauthControllerImpl) LoginHandler(c *gin.Context) {
 	ac.AuthSvc.Login(c)
 }
 
+func (ac *GoogleOauthControllerImpl) CallbackHandler(c *gin.Context) {
+	ac.AuthSvc.Callback(c)
+}
+
 func ProvideGoogleOauthController(as service.AuthService) *GoogleOauthControllerImpl {
 	var controller *GoogleOauthControllerImpl
 	googleOauthControllerOnce.Do(func() {
