@@ -6,15 +6,21 @@ COPY go.mod go.sum ./
 
 RUN go mod download
 RUN go install github.com/air-verse/air@latest
-RUN go install github.com/google/wire/cmd/wire@latest
 
 COPY . .
-
-# Add step to execute generate wire in the /app/cmd/app/provider directory
-# RUN cd ./cmd/app/provider && wire
 
 RUN go build -o main .
 
 EXPOSE 8080
 
-CMD ["air"]
+COPY ./build.sh /app/build.sh
+
+# Make the entrypoint script executable
+RUN chmod +x /app/build.sh
+
+# Set the build-time ARG as an ENV variable inside the Docker image
+ARG ENV
+ENV ENV=$ENV
+
+# Use the shell to run the script
+ENTRYPOINT ["/bin/sh", "/app/build.sh"]

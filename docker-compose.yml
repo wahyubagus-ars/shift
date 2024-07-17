@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - ENV=${APP_ENV}
     ports:
       - "8087:8080"
     depends_on:
@@ -19,6 +21,11 @@ services:
       - DB_MONGO_HOST=mongo
       - DB_MONGO_PORT=${DB_MONGO_PORT}
       - DB_MONGO_NAME=${DB_MONGO_NAME}
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_DB=${REDIS_DB}
+      - ENV=${APP_ENV}
     volumes:
       - ./:/app
     networks:
@@ -44,6 +51,17 @@ services:
       - "27018:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - shift-net
+
+  redis:
+    image: redis:latest
+    restart: always
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD} --databases 16 --dbfilename redis.db --appendonly yes
     networks:
       - shift-net
 
