@@ -1,11 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
 echo "Running build.sh"
 
 if [ "$ENV" = "local" ]; then
+  go install github.com/air-verse/air@latest
   air
 elif [ "$ENV" = "master" ]; then
-  ./main
+  /app/binary
 else
   echo "Unknown environment: $ENV"
   exit 1

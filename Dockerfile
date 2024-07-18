@@ -1,26 +1,29 @@
-FROM golang:1.22.4-alpine
+# Use the golang:1.22.4-alpine image as the builder stage
+FROM golang:1.22.4-alpine as builder
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
-
-RUN go mod download
-RUN go install github.com/air-verse/air@latest
-
 COPY . .
 
-RUN go build -o main .
+RUN go mod tidy
 
-EXPOSE 8080
+RUN go build -o binary
+
+
+# Use alpine image forstage two prepare final image
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY --from=builder /app/binary /app/binary
 
 COPY ./build.sh /app/build.sh
 
-# Make the entrypoint script executable
 RUN chmod +x /app/build.sh
 
-# Set the build-time ARG as an ENV variable inside the Docker image
+EXPOSE 8080
+
 ARG ENV
 ENV ENV=$ENV
 
-# Use the shell to run the script
 ENTRYPOINT ["/bin/sh", "/app/build.sh"]
