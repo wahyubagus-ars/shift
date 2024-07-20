@@ -5,12 +5,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - ENV=${APP_ENV}
     ports:
       - "8087:8080"
     depends_on:
-      - mysql
-      - mongo
+      mysql:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+      redis:
+        condition: service_started
     environment:
+      - APP_PORT=${APP_PORT}
       - DB_MYSQL_HOST=mysql
       - DB_MYSQL_PORT=${DB_MYSQL_PORT}
       - DB_MYSQL_USERNAME=${DB_MYSQL_USERNAME}
@@ -19,8 +26,11 @@ services:
       - DB_MONGO_HOST=mongo
       - DB_MONGO_PORT=${DB_MONGO_PORT}
       - DB_MONGO_NAME=${DB_MONGO_NAME}
-    volumes:
-      - ./:/app
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_DB=${REDIS_DB}
+      - ENV=${APP_ENV}
     networks:
       - shift-net
 
@@ -36,6 +46,11 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - shift-net
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${DB_MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   mongo:
     image: mongo:7
@@ -47,9 +62,23 @@ services:
     networks:
       - shift-net
 
+  redis:
+    image: redis:latest
+    restart: always
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD} --databases ${REDIS_DB} --dbfilename redis.db --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - shift-net
+
 volumes:
   mysql_data:
   mongo_data:
+  redis_data:
 
 networks:
   shift-net:
