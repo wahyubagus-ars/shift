@@ -14,6 +14,7 @@ func init() {
 func main() {
 	port := os.Getenv("APP_PORT")
 
+	config.InitLog()
 	initialization := config.Init()
 	r := routes.Init(initialization)
 

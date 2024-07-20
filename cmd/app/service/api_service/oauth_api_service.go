@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"go-shift/cmd/app/domain/dto"
 	"net/http"
 	"sync"
@@ -26,7 +27,6 @@ func (svc *OauthApiServiceImpl) GetAccessToken(code string, clientId string, cli
 	var client = &http.Client{}
 	var data dto.AccessTokenDto
 
-	/** TODO: Need to refactor redirect_uri value to be dynamic */
 	body := fmt.Sprintf(`{
 		"client_id": "%s",
 		"client_secret": "%s",
@@ -35,6 +35,7 @@ func (svc *OauthApiServiceImpl) GetAccessToken(code string, clientId string, cli
 		"redirect_uri": "%s"
 	}`, clientId, clientSecret, code, redirectUri)
 
+	log.Trace("body request :: ", body)
 	bodyBytes := []byte(body)
 
 	payload := bytes.NewBuffer(bodyBytes)

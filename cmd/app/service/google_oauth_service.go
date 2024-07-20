@@ -42,7 +42,7 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 
 	token, err := svc.oauthApiService.GetAccessToken(code[0], clientId, clientSecret, getTokenUrl, redirectUri)
 	if err != nil {
-		log.Error("Error when get access token")
+		log.Error("Error when get access token :: ", err)
 		pkg.PanicException(constant.UnknownError)
 	}
 
