@@ -74,7 +74,7 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     ports:
       - "6379:6379"
-    command: redis-server --requirepass ${REDIS_PASSWORD} --databases ${REDIS_DB} --dbfilename redis.db --appendonly yes
+    command: redis-server --requirepass ${REDIS_PASSWORD} --databases 5 --dbfilename redis.db --appendonly yes
     volumes:
       - redis_data:/data
     networks:
