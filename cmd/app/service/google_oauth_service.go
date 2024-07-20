@@ -37,9 +37,10 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 
 	clientId := os.Getenv("GOOGLE_OAUTH_CLIENT_ID")
 	clientSecret := os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET")
+	redirectUri := os.Getenv("GOOGLE_REDIRECT_URI")
 	getTokenUrl := os.Getenv("GOOGLE_ACCESS_TOKEN_URL")
 
-	token, err := svc.oauthApiService.GetAccessToken(code[0], clientId, clientSecret, getTokenUrl)
+	token, err := svc.oauthApiService.GetAccessToken(code[0], clientId, clientSecret, getTokenUrl, redirectUri)
 	if err != nil {
 		log.Error("Error when get access token")
 		pkg.PanicException(constant.UnknownError)

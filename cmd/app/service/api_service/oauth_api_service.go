@@ -15,13 +15,13 @@ var (
 )
 
 type OauthApiService interface {
-	GetAccessToken(code string, clientId string, clientSecret string, url string) (dto.AccessTokenDto, error)
+	GetAccessToken(code string, clientId string, clientSecret string, url string, redirectUri string) (dto.AccessTokenDto, error)
 }
 
 type OauthApiServiceImpl struct {
 }
 
-func (svc *OauthApiServiceImpl) GetAccessToken(code string, clientId string, clientSecret string, url string) (dto.AccessTokenDto, error) {
+func (svc *OauthApiServiceImpl) GetAccessToken(code string, clientId string, clientSecret string, url string, redirectUri string) (dto.AccessTokenDto, error) {
 	var err error
 	var client = &http.Client{}
 	var data dto.AccessTokenDto
@@ -32,8 +32,8 @@ func (svc *OauthApiServiceImpl) GetAccessToken(code string, clientId string, cli
 		"client_secret": "%s",
 		"code": "%s",
 		"grant_type": "authorization_code",
-		"redirect_uri": "http://localhost:8081/api/auth/google-callback"
-	}`, clientId, clientSecret, code)
+		"redirect_uri": "%s"
+	}`, clientId, clientSecret, code, redirectUri)
 
 	bodyBytes := []byte(body)
 
