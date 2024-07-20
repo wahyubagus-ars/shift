@@ -35,7 +35,7 @@ func (svc *OauthApiServiceImpl) GetAccessToken(code string, clientId string, cli
 		"redirect_uri": "%s"
 	}`, clientId, clientSecret, code, redirectUri)
 
-	log.Trace("body request :: ", body)
+	log.Info("body request :: ", body)
 	bodyBytes := []byte(body)
 
 	payload := bytes.NewBuffer(bodyBytes)

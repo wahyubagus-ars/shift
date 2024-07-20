@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	log "github.com/sirupsen/logrus"
 	"os"
@@ -20,6 +21,7 @@ func InitLog() {
 }
 
 func getLoggerLevel(value string) log.Level {
+	fmt.Println("log level :: " + value)
 	switch value {
 	case "DEBUG":
 		return log.DebugLevel
