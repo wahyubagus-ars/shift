@@ -46,7 +46,7 @@ services:
       MYSQL_ROOT_PASSWORD: Passw0rd123
       MYSQL_DATABASE: shift_local
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
