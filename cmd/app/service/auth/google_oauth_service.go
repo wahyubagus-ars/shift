@@ -1,4 +1,4 @@
-package service
+package authService
 
 import (
 	"encoding/json"
@@ -10,7 +10,8 @@ import (
 	"go-shift/cmd/app/domain/dao"
 	"go-shift/cmd/app/domain/dto"
 	"go-shift/cmd/app/repository"
-	service "go-shift/cmd/app/service/api_service"
+	"go-shift/cmd/app/service"
+	apiService "go-shift/cmd/app/service/api_service"
 	"go-shift/pkg"
 	"gorm.io/gorm"
 	"os"
@@ -24,8 +25,8 @@ var (
 )
 
 type GoogleOauthServiceImpl struct {
-	redisService    RedisService
-	oauthApiService service.OauthApiService
+	redisService    service.RedisService
+	oauthApiService apiService.OauthApiService
 	userRepository  repository.UserRepository
 }
 
@@ -84,7 +85,7 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 	batchDataToken[constant.RefreshToken.GetRedisKey()+":"+hashedEmail] = token.RefreshToken
 
 	//err = redisService.PutCache(constant.UserAccountData.GetRedisKey()+" : "+pkg.HashData(payload.Email), marshaledData, c)
-	err = redisService.PutCacheBatch(batchDataToken, c)
+	err = svc.redisService.PutCacheBatch(batchDataToken, c)
 	if err != nil {
 		log.Error("Error when try to put userAccount's data in redis")
 		pkg.PanicException(constant.UnknownError)
@@ -129,7 +130,7 @@ func GetTokenPayload(token string) (dto.JWTClaimsPayload, error) {
 	return claims, nil
 }
 
-func ProvideGoogleOauthService(redisService RedisService, oauthApiService service.OauthApiService, userRepository repository.UserRepository) *GoogleOauthServiceImpl {
+func ProvideGoogleOauthService(redisService service.RedisService, oauthApiService apiService.OauthApiService, userRepository repository.UserRepository) *GoogleOauthServiceImpl {
 	googleServiceOnce.Do(func() {
 		googleService = &GoogleOauthServiceImpl{
 			redisService:    redisService,

@@ -8,7 +8,7 @@ import (
 func Init(init *config.Initialization) *gin.Engine {
 	r := gin.New()
 
-	api := r.Group("/api")
+	api := r.Group("/api/v1")
 	{
 		api.GET("", func(c *gin.Context) {
 			c.JSON(200, gin.H{
@@ -20,9 +20,17 @@ func Init(init *config.Initialization) *gin.Engine {
 		auth := api.Group("/auth")
 		{
 			auth.GET("/login", init.AuthController.LoginHandler)
-			auth.GET("/login-with-google", init.GoogleOauthController.LoginHandler)
-			auth.GET("/google-callback", init.GoogleOauthController.CallbackHandler)
 		}
+
+		oauth := api.Group("/oauth")
+		{
+			googleOauth := oauth.Group("/google")
+			{
+				googleOauth.GET("/login-with-google", init.GoogleOauthController.LoginHandler)
+				googleOauth.GET("/google-callback", init.GoogleOauthController.CallbackHandler)
+			}
+		}
+
 	}
 
 	return r

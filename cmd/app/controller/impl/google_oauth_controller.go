@@ -1,8 +1,8 @@
-package controller
+package impl
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-shift/cmd/app/service"
+	auth "go-shift/cmd/app/service/auth"
 	"sync"
 )
 
@@ -11,7 +11,7 @@ var (
 )
 
 type GoogleOauthControllerImpl struct {
-	AuthSvc service.AuthService
+	AuthSvc auth.AuthService
 }
 
 func (controller *GoogleOauthControllerImpl) LoginHandler(c *gin.Context) {
@@ -22,7 +22,7 @@ func (controller *GoogleOauthControllerImpl) CallbackHandler(c *gin.Context) {
 	controller.AuthSvc.Callback(c)
 }
 
-func ProvideGoogleOauthController(as service.AuthService) *GoogleOauthControllerImpl {
+func ProvideGoogleOauthController(as auth.AuthService) *GoogleOauthControllerImpl {
 	var controller *GoogleOauthControllerImpl
 	googleOauthControllerOnce.Do(func() {
 		controller = &GoogleOauthControllerImpl{

@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-shift/cmd/app/service"
+	auth "go-shift/cmd/app/service/auth"
 	"sync"
 )
 
@@ -16,7 +16,7 @@ type AuthController interface {
 }
 
 type AuthControllerImpl struct {
-	AuthSvc service.AuthService
+	AuthSvc auth.AuthService
 }
 
 func (controller *AuthControllerImpl) LoginHandler(c *gin.Context) {
@@ -27,7 +27,7 @@ func (controller *AuthControllerImpl) CallbackHandler(c *gin.Context) {
 
 }
 
-func ProvideAuthController(as service.AuthService) *AuthControllerImpl {
+func ProvideAuthController(as auth.AuthService) *AuthControllerImpl {
 	var controller *AuthControllerImpl
 	authControllerOnce.Do(func() {
 		controller = &AuthControllerImpl{
