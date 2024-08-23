@@ -6,8 +6,8 @@ import (
 	"go-shift/cmd/app/controller/impl"
 	"go-shift/cmd/app/repository"
 	"go-shift/cmd/app/service"
-	apiService "go-shift/cmd/app/service/api_service"
 	authServicePkg "go-shift/cmd/app/service/auth"
+	apiService "go-shift/cmd/app/service/auth/api_service"
 	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 )
@@ -17,7 +17,8 @@ type Initialization struct {
 	mongodb *mongo.Client
 	redis   *redis.Client
 
-	UserRepository repository.UserRepository
+	UserRepository      repository.UserRepository
+	AuthTokenRepository repository.AuthTokenRepository
 
 	RedisService       service.RedisService
 	AuthService        authServicePkg.AuthService
@@ -36,13 +37,14 @@ func Init() *Initialization {
 
 	userRepository := repository.ProvideUserRepository(mysql, mongodb)
 	workspaceRepository := repository.ProvideWorkspaceRepository(mysql)
+	authTokenRepository := repository.ProvideAuthTokenRepository(mysql)
 
 	redisService := service.ProvideRedisService(connectToRedis)
 	workspaceService := service.ProvideWorkspaceService(workspaceRepository)
 
 	authService := authServicePkg.ProvideAuthService(userRepository)
 	oauthApiService := apiService.ProvideOauthApiService()
-	googleOauthService := authServicePkg.ProvideGoogleOauthService(redisService, oauthApiService, userRepository)
+	googleOauthService := authServicePkg.ProvideGoogleOauthService(redisService, oauthApiService, userRepository, authTokenRepository)
 
 	authController := controller.ProvideAuthController(authService)
 	googleOauthController := impl.ProvideGoogleOauthController(googleOauthService)
@@ -53,7 +55,8 @@ func Init() *Initialization {
 		mongodb: mongodb,
 		redis:   connectToRedis,
 
-		UserRepository: userRepository,
+		UserRepository:      userRepository,
+		AuthTokenRepository: authTokenRepository,
 
 		RedisService:       redisService,
 		AuthService:        authService,

@@ -11,12 +11,13 @@ import (
 	"go-shift/cmd/app/domain/dto"
 	"go-shift/cmd/app/repository"
 	"go-shift/cmd/app/service"
-	apiService "go-shift/cmd/app/service/api_service"
+	apiService "go-shift/cmd/app/service/auth/api_service"
 	"go-shift/pkg"
 	"gorm.io/gorm"
 	"os"
 	"strings"
 	"sync"
+	"time"
 )
 
 var (
@@ -25,9 +26,10 @@ var (
 )
 
 type GoogleOauthServiceImpl struct {
-	redisService    service.RedisService
-	oauthApiService apiService.OauthApiService
-	userRepository  repository.UserRepository
+	redisService        service.RedisService
+	oauthApiService     apiService.OauthApiService
+	userRepository      repository.UserRepository
+	authTokenRepository repository.AuthTokenRepository
 }
 
 func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
@@ -76,6 +78,19 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 	}
 
 	/** TODO: need to insert token data to auth_token table mysql */
+	authToken := &dao.AuthToken{
+		UserAccountID: userAccount.ID,
+		AccessToken:   token.AccessToken,
+		RefreshToken:  token.RefreshToken,
+		ExpiresIn:     time.Now().Add(time.Duration(token.ExpiresIn) * time.Second),
+		IsActive:      true,
+	}
+
+	_, err = svc.authTokenRepository.SaveUserAuth(authToken)
+
+	if err != nil {
+		pkg.PanicException(constant.UnknownError)
+	}
 
 	hashedEmail := pkg.HashData(payload.Email)
 
@@ -91,11 +106,15 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 		pkg.PanicException(constant.UnknownError)
 	}
 
-	c.JSON(200, gin.H{
-		"response_key": "success",
-		"message":      "login api google",
-		"data":         token,
-	})
+	data := dto.ApiResponse[any]{
+		ResponseKey:     constant.Success.GetResponseStatus(),
+		ResponseMessage: constant.Success.GetResponseMessage(),
+		Data:            nil,
+	}
+
+	c.Header("Authorization-Token", token.IdToken)
+
+	c.JSON(200, data)
 }
 
 func (as *GoogleOauthServiceImpl) Callback(c *gin.Context) {
@@ -130,12 +149,14 @@ func GetTokenPayload(token string) (dto.JWTClaimsPayload, error) {
 	return claims, nil
 }
 
-func ProvideGoogleOauthService(redisService service.RedisService, oauthApiService apiService.OauthApiService, userRepository repository.UserRepository) *GoogleOauthServiceImpl {
+func ProvideGoogleOauthService(redisService service.RedisService, oauthApiService apiService.OauthApiService,
+	userRepository repository.UserRepository, tokenRepository repository.AuthTokenRepository) *GoogleOauthServiceImpl {
 	googleServiceOnce.Do(func() {
 		googleService = &GoogleOauthServiceImpl{
-			redisService:    redisService,
-			oauthApiService: oauthApiService,
-			userRepository:  userRepository,
+			redisService:        redisService,
+			oauthApiService:     oauthApiService,
+			userRepository:      userRepository,
+			authTokenRepository: tokenRepository,
 		}
 	})
 

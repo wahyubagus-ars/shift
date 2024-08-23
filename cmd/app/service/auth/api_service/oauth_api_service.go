@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"go-shift/cmd/app/domain/dto"
 	"net/http"
 	"sync"
@@ -22,7 +21,8 @@ type OauthApiService interface {
 type OauthApiServiceImpl struct {
 }
 
-func (svc *OauthApiServiceImpl) GetAccessToken(code string, clientId string, clientSecret string, url string, redirectUri string) (dto.AccessTokenDto, error) {
+func (svc *OauthApiServiceImpl) GetAccessToken(code string, clientId string, clientSecret string, url string,
+	redirectUri string) (dto.AccessTokenDto, error) {
 	var err error
 	var client = &http.Client{}
 	var data dto.AccessTokenDto
@@ -35,7 +35,6 @@ func (svc *OauthApiServiceImpl) GetAccessToken(code string, clientId string, cli
 		"redirect_uri": "%s"
 	}`, clientId, clientSecret, code, redirectUri)
 
-	log.Info("body request :: ", body)
 	bodyBytes := []byte(body)
 
 	payload := bytes.NewBuffer(bodyBytes)

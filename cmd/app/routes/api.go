@@ -27,7 +27,7 @@ func Init(init *config.Initialization) *gin.Engine {
 			googleOauth := oauth.Group("/google")
 			{
 				googleOauth.GET("/login-with-google", init.GoogleOauthController.LoginHandler)
-				googleOauth.GET("/google-callback", init.GoogleOauthController.CallbackHandler)
+				googleOauth.GET("/callback", init.GoogleOauthController.CallbackHandler)
 			}
 		}
 
