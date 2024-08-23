@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"go-shift/cmd/app/domain/dao"
+	"go-shift/cmd/app/domain/dao/table"
 	"go-shift/cmd/app/util"
 	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
@@ -15,8 +15,8 @@ var (
 
 type UserRepository interface {
 	FindUserById(id int) int
-	FindUserByEmail(email string) (dao.UserAccount, error)
-	SaveInitiateUser(email string, authenticationId int) (dao.UserAccount, error)
+	FindUserByEmail(email string) (table.UserAccount, error)
+	SaveInitiateUser(email string, authenticationId int) (table.UserAccount, error)
 }
 
 type UserRepositoryImpl struct {
@@ -28,30 +28,30 @@ func (ur *UserRepositoryImpl) FindUserById(id int) int {
 	return 1
 }
 
-func (ur *UserRepositoryImpl) FindUserByEmail(email string) (dao.UserAccount, error) {
-	var user dao.UserAccount
+func (ur *UserRepositoryImpl) FindUserByEmail(email string) (table.UserAccount, error) {
+	var user table.UserAccount
 	var err = ur.mysql.Where("email = ?", email).First(&user).Error
 
 	if err != nil {
-		return dao.UserAccount{}, err
+		return table.UserAccount{}, err
 	}
 
 	return user, nil
 }
 
-func (ur *UserRepositoryImpl) SaveInitiateUser(email string, authenticationId int) (dao.UserAccount, error) {
+func (ur *UserRepositoryImpl) SaveInitiateUser(email string, authenticationId int) (table.UserAccount, error) {
 
-	user := dao.UserAccount{
+	user := table.UserAccount{
 		Email:            email,
 		AuthenticationID: authenticationId,
-		BaseModel: dao.BaseModel{
+		BaseModel: table.BaseModel{
 			CreatedAt: util.GenerateTimePtr(),
 			CreatedBy: util.IntPtr(0),
 		},
 	}
 
 	if err := ur.mysql.Save(&user).Error; err != nil {
-		return dao.UserAccount{}, err
+		return table.UserAccount{}, err
 	}
 
 	return user, nil

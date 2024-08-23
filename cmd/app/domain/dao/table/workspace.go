@@ -1,4 +1,4 @@
-package dao
+package table
 
 type Workspace struct {
 	ID             int     `gorm:"column:id;primaryKey;autoIncrement"`

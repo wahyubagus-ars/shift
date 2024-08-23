@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"go-shift/cmd/app/constant"
-	"go-shift/cmd/app/domain/dao"
+	"go-shift/cmd/app/domain/dao/table"
 	"go-shift/cmd/app/domain/dto"
 	"go-shift/cmd/app/repository"
 	"go-shift/cmd/app/service"
@@ -55,7 +55,7 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 		pkg.PanicException(constant.UnknownError)
 	}
 
-	var userAccount dao.UserAccount
+	var userAccount table.UserAccount
 	userAccount, err = svc.userRepository.FindUserByEmail(payload.Email)
 
 	if err != nil {
@@ -76,7 +76,7 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 		pkg.PanicException(constant.UnknownError)
 	}
 
-	authToken := &dao.AuthToken{
+	authToken := &table.AuthToken{
 		UserAccountID: userAccount.ID,
 		AccessToken:   token.AccessToken,
 		RefreshToken:  token.RefreshToken,

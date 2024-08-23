@@ -1,4 +1,4 @@
-package dao
+package table
 
 type Authentication struct {
 	ID      int    `gorm:"primaryKey;column:id" json:"id"`

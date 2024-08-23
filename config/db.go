@@ -51,16 +51,10 @@ func ConnectToMongoDb() *mongo.Client {
 			"See: " +
 			"www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable")
 	}
-	client, err := mongo.Connect(context.TODO(), options.Client().
-		ApplyURI(uri))
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)
 	}
-	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
 
 	return client
 }

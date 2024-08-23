@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"go-shift/cmd/app/domain/dao"
+	"go-shift/cmd/app/domain/dao/table"
 	"gorm.io/gorm"
 	"sync"
 )
@@ -12,17 +12,17 @@ var (
 )
 
 type UserProfileRepository interface {
-	FindByUserAccountId(id int) (*dao.UserProfile, error)
-	FindByUserAccountEmail(email string) (*dao.UserProfile, error)
-	SaveUserProfile(profile *dao.UserProfile) (*dao.UserProfile, error)
+	FindByUserAccountId(id int) (*table.UserProfile, error)
+	FindByUserAccountEmail(email string) (*table.UserProfile, error)
+	SaveUserProfile(profile *table.UserProfile) (*table.UserProfile, error)
 }
 
 type UserProfileRepositoryImpl struct {
 	mysql *gorm.DB
 }
 
-func (r *UserProfileRepositoryImpl) FindByUserAccountId(id int) (*dao.UserProfile, error) {
-	var userProfile dao.UserProfile
+func (r *UserProfileRepositoryImpl) FindByUserAccountId(id int) (*table.UserProfile, error) {
+	var userProfile table.UserProfile
 	err := r.mysql.Where("user_account_id", id).Find(&userProfile).Error
 
 	if err != nil {
@@ -32,8 +32,8 @@ func (r *UserProfileRepositoryImpl) FindByUserAccountId(id int) (*dao.UserProfil
 	return &userProfile, nil
 }
 
-func (r *UserProfileRepositoryImpl) FindByUserAccountEmail(email string) (*dao.UserProfile, error) {
-	var userProfile dao.UserProfile
+func (r *UserProfileRepositoryImpl) FindByUserAccountEmail(email string) (*table.UserProfile, error) {
+	var userProfile table.UserProfile
 	err := r.mysql.Raw("SELECT up.* FROM user_profile as up "+
 		"JOIN user_account as ua ON up.user_account_id = ua.id "+
 		"WHERE ua.email = ?", email).Find(&userProfile).Error
@@ -45,7 +45,7 @@ func (r *UserProfileRepositoryImpl) FindByUserAccountEmail(email string) (*dao.U
 	return &userProfile, nil
 }
 
-func (r *UserProfileRepositoryImpl) SaveUserProfile(profile *dao.UserProfile) (*dao.UserProfile, error) {
+func (r *UserProfileRepositoryImpl) SaveUserProfile(profile *table.UserProfile) (*table.UserProfile, error) {
 	return nil, nil
 }
 

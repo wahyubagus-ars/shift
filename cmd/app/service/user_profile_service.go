@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/gin-gonic/gin"
 	"go-shift/cmd/app/constant"
-	"go-shift/cmd/app/domain/dao"
+	"go-shift/cmd/app/domain/dao/table"
 	"go-shift/cmd/app/domain/dto"
 	"go-shift/cmd/app/repository"
 	"go-shift/cmd/app/util"
@@ -37,7 +37,7 @@ func (svc *UserProfileServiceImpl) GetUserProfile(c *gin.Context) {
 		pkg.PanicException(constant.UnknownError)
 	}
 
-	apiResponse := dto.ApiResponse[dao.UserProfile]{
+	apiResponse := dto.ApiResponse[table.UserProfile]{
 		ResponseKey:     constant.Success.GetResponseStatus(),
 		ResponseMessage: constant.Success.GetResponseMessage(),
 		Data:            *userProfile,

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"go-shift/cmd/app/domain/dao"
+	"go-shift/cmd/app/domain/dao/table"
 	"gorm.io/gorm"
 	"sync"
 )
@@ -12,19 +12,19 @@ var (
 )
 
 type WorkspaceRepository interface {
-	GetWorkspace() ([]dao.Workspace, error)
-	AddWorkspace(workspace dao.Workspace) ([]dao.Workspace, error)
+	GetWorkspace() ([]table.Workspace, error)
+	AddWorkspace(workspace table.Workspace) ([]table.Workspace, error)
 }
 
 type WorkspaceRepositoryImpl struct {
 	mysql *gorm.DB
 }
 
-func (wr *WorkspaceRepositoryImpl) GetWorkspace() ([]dao.Workspace, error) {
+func (wr *WorkspaceRepositoryImpl) GetWorkspace() ([]table.Workspace, error) {
 	return nil, nil
 }
 
-func (wr *WorkspaceRepositoryImpl) AddWorkspace(workspace dao.Workspace) ([]dao.Workspace, error) {
+func (wr *WorkspaceRepositoryImpl) AddWorkspace(workspace table.Workspace) ([]table.Workspace, error) {
 	return nil, nil
 }
 

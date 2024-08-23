@@ -17,7 +17,15 @@ func Init(init *config.Initialization) *gin.Engine {
 			})
 		})
 
-		api.GET("/user-profile", init.UserProfileController.GetUserProfile)
+		user := api.Group("/user")
+		{
+			user.GET("/profile", init.UserProfileController.GetUserProfile)
+		}
+
+		tracking := api.Group("/tracking")
+		{
+			tracking.GET("/time-entries", init.TimeTrackingController.GetTimeEntries)
+		}
 
 		auth := api.Group("/auth")
 		{

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"go-shift/cmd/app/domain/dao"
+	"go-shift/cmd/app/domain/dao/table"
 	"gorm.io/gorm"
 	"sync"
 )
@@ -12,14 +12,14 @@ var (
 )
 
 type AuthTokenRepository interface {
-	SaveUserAuth(authToken *dao.AuthToken) (*dao.AuthToken, error)
+	SaveUserAuth(authToken *table.AuthToken) (*table.AuthToken, error)
 }
 
 type AuthTokenRepositoryImpl struct {
 	mysql *gorm.DB
 }
 
-func (at *AuthTokenRepositoryImpl) SaveUserAuth(authToken *dao.AuthToken) (*dao.AuthToken, error) {
+func (at *AuthTokenRepositoryImpl) SaveUserAuth(authToken *table.AuthToken) (*table.AuthToken, error) {
 	if err := at.mysql.Save(authToken).Error; err != nil {
 		return nil, err
 	}
