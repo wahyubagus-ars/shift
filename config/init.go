@@ -17,17 +17,20 @@ type Initialization struct {
 	mongodb *mongo.Client
 	redis   *redis.Client
 
-	UserRepository      repository.UserRepository
-	AuthTokenRepository repository.AuthTokenRepository
+	UserAccountRepository repository.UserRepository
+	UserProfileRepository repository.UserProfileRepository
+	AuthTokenRepository   repository.AuthTokenRepository
 
 	RedisService       service.RedisService
-	AuthService        authServicePkg.AuthService
+	AuthService        authServicePkg.OAuthService
 	OauthApiService    apiService.OauthApiService
-	GoogleOauthService authServicePkg.AuthService
+	GoogleOauthService authServicePkg.OAuthService
+	UserProfileService service.UserProfileService
 
 	AuthController        controller.AuthController
 	GoogleOauthController controller.AuthController
 	WorkspaceController   controller.WorkspaceController
+	UserProfileController controller.UserProfileController
 }
 
 func Init() *Initialization {
@@ -35,35 +38,43 @@ func Init() *Initialization {
 	mongodb := ConnectToMongoDb()
 	connectToRedis := ConnectToRedis()
 
-	userRepository := repository.ProvideUserRepository(mysql, mongodb)
+	userAccountRepository := repository.ProvideUserRepository(mysql, mongodb)
+	userProfileRepository := repository.ProvideUserProfileRepository(mysql)
 	workspaceRepository := repository.ProvideWorkspaceRepository(mysql)
 	authTokenRepository := repository.ProvideAuthTokenRepository(mysql)
 
 	redisService := service.ProvideRedisService(connectToRedis)
 	workspaceService := service.ProvideWorkspaceService(workspaceRepository)
 
-	authService := authServicePkg.ProvideAuthService(userRepository)
+	authService := authServicePkg.ProvideAuthService(userAccountRepository)
 	oauthApiService := apiService.ProvideOauthApiService()
-	googleOauthService := authServicePkg.ProvideGoogleOauthService(redisService, oauthApiService, userRepository, authTokenRepository)
+	googleOauthService := authServicePkg.ProvideGoogleOauthService(redisService, oauthApiService, userAccountRepository,
+		&repository.UserProfileRepositoryImpl{},
+		authTokenRepository)
+	userProfileService := service.ProvideUserProfileService(userProfileRepository)
 
 	authController := controller.ProvideAuthController(authService)
 	googleOauthController := impl.ProvideGoogleOauthController(googleOauthService)
 	workspaceController := controller.ProvideWorkspaceController(workspaceService)
+	userProfileController := controller.ProvideUserProfileController(userProfileService)
 
 	return &Initialization{
 		mysql:   mysql,
 		mongodb: mongodb,
 		redis:   connectToRedis,
 
-		UserRepository:      userRepository,
-		AuthTokenRepository: authTokenRepository,
+		UserAccountRepository: userAccountRepository,
+		UserProfileRepository: userProfileRepository,
+		AuthTokenRepository:   authTokenRepository,
 
 		RedisService:       redisService,
 		AuthService:        authService,
 		GoogleOauthService: googleOauthService,
+		UserProfileService: userProfileService,
 
 		AuthController:        authController,
 		GoogleOauthController: googleOauthController,
 		WorkspaceController:   workspaceController,
+		UserProfileController: userProfileController,
 	}
 }

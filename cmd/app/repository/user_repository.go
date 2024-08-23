@@ -2,10 +2,10 @@ package repository
 
 import (
 	"go-shift/cmd/app/domain/dao"
+	"go-shift/cmd/app/util"
 	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 	"sync"
-	"time"
 )
 
 var (
@@ -40,12 +40,13 @@ func (ur *UserRepositoryImpl) FindUserByEmail(email string) (dao.UserAccount, er
 }
 
 func (ur *UserRepositoryImpl) SaveInitiateUser(email string, authenticationId int) (dao.UserAccount, error) {
+
 	user := dao.UserAccount{
 		Email:            email,
 		AuthenticationID: authenticationId,
 		BaseModel: dao.BaseModel{
-			CreatedAt: time.Now(),
-			CreatedBy: 0,
+			CreatedAt: util.GenerateTimePtr(),
+			CreatedBy: util.IntPtr(0),
 		},
 	}
 

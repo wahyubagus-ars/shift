@@ -3,5 +3,11 @@ CREATE TABLE IF NOT EXISTS workspace (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     profile_picture VARCHAR(255),
-    metadata JSON
+    metadata JSON,
+    created_at DATETIME NOT NULL,
+    created_by INT,
+    updated_at DATETIME,
+    updated_by INT,
+    deleted_at DATETIME,
+    deleted_by INT
 );

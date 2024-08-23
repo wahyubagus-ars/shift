@@ -16,7 +16,7 @@ type AuthController interface {
 }
 
 type AuthControllerImpl struct {
-	AuthSvc auth.AuthService
+	AuthSvc auth.OAuthService
 }
 
 func (controller *AuthControllerImpl) LoginHandler(c *gin.Context) {
@@ -27,7 +27,7 @@ func (controller *AuthControllerImpl) CallbackHandler(c *gin.Context) {
 
 }
 
-func ProvideAuthController(as auth.AuthService) *AuthControllerImpl {
+func ProvideAuthController(as auth.OAuthService) *AuthControllerImpl {
 	var controller *AuthControllerImpl
 	authControllerOnce.Do(func() {
 		controller = &AuthControllerImpl{

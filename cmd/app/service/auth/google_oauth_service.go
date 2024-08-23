@@ -1,9 +1,7 @@
 package authService
 
 import (
-	"encoding/json"
 	"errors"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"go-shift/cmd/app/constant"
@@ -12,10 +10,10 @@ import (
 	"go-shift/cmd/app/repository"
 	"go-shift/cmd/app/service"
 	apiService "go-shift/cmd/app/service/auth/api_service"
+	"go-shift/cmd/app/util"
 	"go-shift/pkg"
 	"gorm.io/gorm"
 	"os"
-	"strings"
 	"sync"
 	"time"
 )
@@ -26,10 +24,11 @@ var (
 )
 
 type GoogleOauthServiceImpl struct {
-	redisService        service.RedisService
-	oauthApiService     apiService.OauthApiService
-	userRepository      repository.UserRepository
-	authTokenRepository repository.AuthTokenRepository
+	redisService          service.RedisService
+	oauthApiService       apiService.OauthApiService
+	userRepository        repository.UserRepository
+	userProfileRepository repository.UserProfileRepository
+	authTokenRepository   repository.AuthTokenRepository
 }
 
 func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
@@ -49,7 +48,7 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 		pkg.PanicException(constant.UnknownError)
 	}
 
-	payload, err := GetTokenPayload(token.IdToken)
+	payload, err := util.GetTokenPayload(token.IdToken)
 
 	if err != nil {
 		log.Error("Error when try decode token")
@@ -77,7 +76,6 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 		pkg.PanicException(constant.UnknownError)
 	}
 
-	/** TODO: need to insert token data to auth_token table mysql */
 	authToken := &dao.AuthToken{
 		UserAccountID: userAccount.ID,
 		AccessToken:   token.AccessToken,
@@ -98,6 +96,7 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 	batchDataToken[constant.UserAccountData.GetRedisKey()+":"+hashedEmail] = marshaledData
 	batchDataToken[constant.AccessToken.GetRedisKey()+":"+hashedEmail] = token.AccessToken
 	batchDataToken[constant.RefreshToken.GetRedisKey()+":"+hashedEmail] = token.RefreshToken
+	batchDataToken[constant.IdToken.GetRedisKey()+":"+hashedEmail] = token.IdToken
 
 	//err = redisService.PutCache(constant.UserAccountData.GetRedisKey()+" : "+pkg.HashData(payload.Email), marshaledData, c)
 	err = svc.redisService.PutCacheBatch(batchDataToken, c)
@@ -117,46 +116,49 @@ func (svc *GoogleOauthServiceImpl) Login(c *gin.Context) {
 	c.JSON(200, data)
 }
 
-func (as *GoogleOauthServiceImpl) Callback(c *gin.Context) {
+func (svc *GoogleOauthServiceImpl) Callback(c *gin.Context) {
 	authorizationCode := c.Query("code")
 	c.Request.Header.Add("Authorization-Code", authorizationCode)
-	as.Login(c)
+	svc.Login(c)
 }
 
-func GetTokenPayload(token string) (dto.JWTClaimsPayload, error) {
-	parts := strings.Split(token, ".")
-	if len(parts) != 3 {
-		log.Error("Invalid token format")
-		return dto.JWTClaimsPayload{}, &dto.AppError{
-			Message: "Invalid token format",
-		}
-	}
-
-	// Decode the second part, which is the payload
-	payload, err := jwt.DecodeSegment(parts[1])
-	if err != nil {
-		log.Error("Error decoding payload:", err)
-		return dto.JWTClaimsPayload{}, err
-	}
-
-	var claims dto.JWTClaimsPayload
-	err = json.Unmarshal(payload, &claims)
-	if err != nil {
-		log.Error("Error when unmarshalling payload:", err)
-		return dto.JWTClaimsPayload{}, nil
-	}
-
-	return claims, nil
-}
+//func GetTokenPayload(token string) (dto.JWTClaimsPayload, error) {
+//	parts := strings.Split(token, ".")
+//	if len(parts) != 3 {
+//		log.Error("Invalid token format")
+//		return dto.JWTClaimsPayload{}, &dto.AppError{
+//			Message: "Invalid token format",
+//		}
+//	}
+//
+//	// Decode the second part, which is the payload
+//	payload, err := jwt.DecodeSegment(parts[1])
+//	if err != nil {
+//		log.Error("Error decoding payload:", err)
+//		return dto.JWTClaimsPayload{}, err
+//	}
+//
+//	var claims dto.JWTClaimsPayload
+//	err = json.Unmarshal(payload, &claims)
+//	if err != nil {
+//		log.Error("Error when unmarshalling payload:", err)
+//		return dto.JWTClaimsPayload{}, nil
+//	}
+//
+//	return claims, nil
+//}
 
 func ProvideGoogleOauthService(redisService service.RedisService, oauthApiService apiService.OauthApiService,
-	userRepository repository.UserRepository, tokenRepository repository.AuthTokenRepository) *GoogleOauthServiceImpl {
+	userRepository repository.UserRepository,
+	userProfileRepository repository.UserProfileRepository,
+	tokenRepository repository.AuthTokenRepository) *GoogleOauthServiceImpl {
 	googleServiceOnce.Do(func() {
 		googleService = &GoogleOauthServiceImpl{
-			redisService:        redisService,
-			oauthApiService:     oauthApiService,
-			userRepository:      userRepository,
-			authTokenRepository: tokenRepository,
+			redisService:          redisService,
+			oauthApiService:       oauthApiService,
+			userRepository:        userRepository,
+			userProfileRepository: userProfileRepository,
+			authTokenRepository:   tokenRepository,
 		}
 	})
 

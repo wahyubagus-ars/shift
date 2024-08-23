@@ -11,7 +11,7 @@ var (
 )
 
 type GoogleOauthControllerImpl struct {
-	AuthSvc auth.AuthService
+	AuthSvc auth.OAuthService
 }
 
 func (controller *GoogleOauthControllerImpl) LoginHandler(c *gin.Context) {
@@ -22,7 +22,7 @@ func (controller *GoogleOauthControllerImpl) CallbackHandler(c *gin.Context) {
 	controller.AuthSvc.Callback(c)
 }
 
-func ProvideGoogleOauthController(as auth.AuthService) *GoogleOauthControllerImpl {
+func ProvideGoogleOauthController(as auth.OAuthService) *GoogleOauthControllerImpl {
 	var controller *GoogleOauthControllerImpl
 	googleOauthControllerOnce.Do(func() {
 		controller = &GoogleOauthControllerImpl{

@@ -11,3 +11,7 @@ type AuthToken struct {
 	IsActive      bool      `gorm:"column:is_active;default:false" json:"is_active"`
 	BaseModel
 }
+
+func (AuthToken) TableName() string {
+	return "auth_token"
+}

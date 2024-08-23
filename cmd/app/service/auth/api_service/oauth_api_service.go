@@ -16,6 +16,7 @@ var (
 
 type OauthApiService interface {
 	GetAccessToken(code string, clientId string, clientSecret string, url string, redirectUri string) (dto.AccessTokenDto, error)
+	GetUserProfile(accessToken string)
 }
 
 type OauthApiServiceImpl struct {
@@ -55,6 +56,10 @@ func (svc *OauthApiServiceImpl) GetAccessToken(code string, clientId string, cli
 	}
 
 	return data, nil
+}
+
+func (svc *OauthApiServiceImpl) GetUserProfile(accessToken string) {
+
 }
 
 func ProvideOauthApiService() *OauthApiServiceImpl {

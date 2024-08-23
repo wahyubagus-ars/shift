@@ -6,3 +6,7 @@ type Authentication struct {
 	Enabled bool   `gorm:"column:enabled;default:true" json:"enabled"`
 	BaseModel
 }
+
+func (Authentication) TableName() string {
+	return "authentication"
+}

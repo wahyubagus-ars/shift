@@ -17,6 +17,8 @@ func Init(init *config.Initialization) *gin.Engine {
 			})
 		})
 
+		api.GET("/user-profile", init.UserProfileController.GetUserProfile)
+
 		auth := api.Group("/auth")
 		{
 			auth.GET("/login", init.AuthController.LoginHandler)

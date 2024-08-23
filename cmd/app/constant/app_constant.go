@@ -27,9 +27,9 @@ const (
 	UserAccountData RedisKey = iota + 1
 	AccessToken
 	RefreshToken
-	TokenData
+	IdToken
 )
 
 func (rk RedisKey) GetRedisKey() string {
-	return [...]string{"USER_ACCOUNT_DATA", "ACCESS_TOKEN", "REFRESH_TOKEN", "TOKEN_DATA"}[rk-1]
+	return [...]string{"USER_ACCOUNT_DATA", "ACCESS_TOKEN", "REFRESH_TOKEN", "ID_TOKEN"}[rk-1]
 }
