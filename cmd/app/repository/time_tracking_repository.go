@@ -5,6 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"go-shift/cmd/app/domain/dao/collection"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"sync"
 )
@@ -15,7 +16,7 @@ var (
 )
 
 type TimeTrackingRepository interface {
-	//SubmitTimeEntry()
+	SubmitTimeEntry(timeEntry *collection.TimeEntry) (*collection.TimeEntry, error)
 	GetTimeEntries(userId int, projectId int) ([]collection.TimeEntry, error)
 }
 
@@ -46,6 +47,20 @@ func (r *TimeTrackingRepositoryImpl) GetTimeEntries(userId int, projectId int) (
 	}
 
 	return timeEntries, nil
+}
+
+func (r *TimeTrackingRepositoryImpl) SubmitTimeEntry(timeEntry *collection.TimeEntry) (*collection.TimeEntry, error) {
+	result, err := r.mongodb.Collection("timeEntry").InsertOne(context.TODO(), &timeEntry)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if oid, ok := result.InsertedID.(primitive.ObjectID); ok {
+		timeEntry.ID = oid
+	}
+
+	return timeEntry, nil
 }
 
 func ProvideTimeTrackingRepository(mongodb *mongo.Client) *TimeTrackingRepositoryImpl {

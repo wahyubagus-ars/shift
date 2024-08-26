@@ -25,6 +25,7 @@ func Init(init *config.Initialization) *gin.Engine {
 		tracking := api.Group("/tracking")
 		{
 			tracking.GET("/time-entries", init.TimeTrackingController.GetTimeEntries)
+			tracking.POST("/time-entries", init.TimeTrackingController.SubmitTimeEntry)
 		}
 
 		auth := api.Group("/auth")

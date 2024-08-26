@@ -13,6 +13,7 @@ var (
 
 type TimeTrackingController interface {
 	GetTimeEntries(c *gin.Context)
+	SubmitTimeEntry(c *gin.Context)
 }
 
 type TimeTrackingControllerImpl struct {
@@ -21,6 +22,10 @@ type TimeTrackingControllerImpl struct {
 
 func (ctrl *TimeTrackingControllerImpl) GetTimeEntries(c *gin.Context) {
 	ctrl.timeTrackingService.GetTimeEntries(c)
+}
+
+func (ctrl *TimeTrackingControllerImpl) SubmitTimeEntry(c *gin.Context) {
+	ctrl.timeTrackingService.SubmitTimeEntry(c)
 }
 
 func ProvideTimeTrackingController(trackingService service.TimeTrackingService) *TimeTrackingControllerImpl {
