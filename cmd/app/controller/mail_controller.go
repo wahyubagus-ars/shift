@@ -20,7 +20,7 @@ type MailControllerImpl struct {
 }
 
 func (controller *MailControllerImpl) VerifyEmail(c *gin.Context) {
-	controller.mailService.VerifyEmail(c)
+	//controller.mailService.VerifyEmail(c)
 }
 
 func ProvideMailController(mailService service.MailService) *MailControllerImpl {

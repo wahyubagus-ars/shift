@@ -25,9 +25,11 @@ var (
 )
 
 type GoogleOauthServiceImpl struct {
-	mailService           service.MailService
-	redisService          service.RedisService
-	oauthApiService       apiService.OauthApiService
+	mailService     service.MailService
+	redisService    service.RedisService
+	oauthApiService apiService.OauthApiService
+
+	mailRepository        repository.MailRepository
 	userRepository        repository.UserRepository
 	userProfileRepository repository.UserProfileRepository
 	authTokenRepository   repository.AuthTokenRepository
@@ -154,15 +156,32 @@ func (svc *GoogleOauthServiceImpl) oauthProcess(c *gin.Context, processType stri
 	return token, payload
 }
 
+func (svc *GoogleOauthServiceImpl) VerifyEmail(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	token := c.Query("verificationToken")
+	verificationEmail, err := svc.mailRepository.FindVerificationEmailById(token)
+
+	if err != nil {
+		pkg.PanicException(constant.UnknownError)
+	}
+
+	err = svc.userRepository.UpdateEmailVerifiedAt(verificationEmail.Email)
+	if err != nil {
+		return
+	}
+
+	c.Redirect(302, "http://localhost:8087/api/v1")
+}
+
 func ProvideGoogleOauthService(mailService service.MailService, redisService service.RedisService, oauthApiService apiService.OauthApiService,
-	userRepository repository.UserRepository,
-	userProfileRepository repository.UserProfileRepository,
-	tokenRepository repository.AuthTokenRepository) *GoogleOauthServiceImpl {
+	mailRepository repository.MailRepository, userRepository repository.UserRepository,
+	userProfileRepository repository.UserProfileRepository, tokenRepository repository.AuthTokenRepository) *GoogleOauthServiceImpl {
 	googleServiceOnce.Do(func() {
 		googleService = &GoogleOauthServiceImpl{
 			mailService:           mailService,
 			redisService:          redisService,
 			oauthApiService:       oauthApiService,
+			mailRepository:        mailRepository,
 			userRepository:        userRepository,
 			userProfileRepository: userProfileRepository,
 			authTokenRepository:   tokenRepository,

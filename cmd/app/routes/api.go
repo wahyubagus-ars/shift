@@ -37,7 +37,7 @@ func Init(init *config.Initialization) *gin.Engine {
 		/** mail api endpoint */
 		mail := api.Group("/mail")
 		{
-			mail.GET("/verification", init.MailController.VerifyEmail)
+			mail.GET("/verification", init.GoogleOauthController.VerifyEmail)
 		}
 
 		user := api.Group("/user")

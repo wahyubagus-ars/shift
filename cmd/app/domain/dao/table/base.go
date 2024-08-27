@@ -20,7 +20,7 @@ type BaseModel struct {
 // BeforeCreate hook to set CreatedAt and CreatedBy
 func (base *BaseModel) BeforeCreate(tx *gorm.DB) (err error) {
 	base.CreatedAt = util.GenerateTimePtr()
-	base.CreatedBy = util.IntPtr(-1)
+	base.CreatedBy = util.GenerateIntPtr(-1)
 	//if userID, ok := tx.Statement.Context.Value("user_id").(int); ok {
 	//	base.CreatedBy = userID
 	//}

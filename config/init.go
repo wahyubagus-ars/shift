@@ -17,6 +17,7 @@ type Initialization struct {
 	mongodb *mongo.Client
 	redis   *redis.Client
 
+	MailRepository         repository.MailRepository
 	UserAccountRepository  repository.UserRepository
 	UserProfileRepository  repository.UserProfileRepository
 	AuthTokenRepository    repository.AuthTokenRepository
@@ -44,20 +45,21 @@ func Init() *Initialization {
 	connectToRedis := ConnectToRedis()
 	mail := InitMail()
 
+	mailRepository := repository.ProvideMailRepository(mongodb)
 	userAccountRepository := repository.ProvideUserRepository(mysql, mongodb)
 	userProfileRepository := repository.ProvideUserProfileRepository(mysql)
 	workspaceRepository := repository.ProvideWorkspaceRepository(mysql)
 	authTokenRepository := repository.ProvideAuthTokenRepository(mysql)
 	timeTrackingRepository := repository.ProvideTimeTrackingRepository(mongodb)
 
-	mailService := service.ProvideMailService(mail)
+	mailService := service.ProvideMailService(mailRepository, mail)
 	redisService := service.ProvideRedisService(connectToRedis)
 	workspaceService := service.ProvideWorkspaceService(workspaceRepository)
 
 	authService := authServicePkg.ProvideAuthService(userAccountRepository)
 	oauthApiService := apiService.ProvideOauthApiService()
 	googleOauthService := authServicePkg.ProvideGoogleOauthService(mailService, redisService, oauthApiService,
-		userAccountRepository, &repository.UserProfileRepositoryImpl{},
+		mailRepository, userAccountRepository, &repository.UserProfileRepositoryImpl{},
 		authTokenRepository)
 
 	userProfileService := service.ProvideUserProfileService(userProfileRepository)
@@ -75,6 +77,7 @@ func Init() *Initialization {
 		mongodb: mongodb,
 		redis:   connectToRedis,
 
+		MailRepository:         mailRepository,
 		UserAccountRepository:  userAccountRepository,
 		UserProfileRepository:  userProfileRepository,
 		AuthTokenRepository:    authTokenRepository,

@@ -16,6 +16,8 @@ type OAuthService interface {
 	SignInCallback(c *gin.Context)
 	SignUp(c *gin.Context)
 	SignUpCallback(c *gin.Context)
+
+	VerifyEmail(c *gin.Context)
 }
 
 type OAuthServiceImpl struct {
@@ -41,6 +43,10 @@ func (svc *OAuthServiceImpl) SignUp(c *gin.Context) {
 }
 
 func (svc *OAuthServiceImpl) SignUpCallback(c *gin.Context) {
+
+}
+
+func (svc *OAuthServiceImpl) VerifyEmail(c *gin.Context) {
 
 }
 

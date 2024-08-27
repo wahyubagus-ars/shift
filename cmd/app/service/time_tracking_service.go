@@ -68,7 +68,7 @@ func (svc *TimeTrackingServiceImpl) SubmitTimeEntry(c *gin.Context) {
 		IsBillable:  timeEntryReq.IsBillable,
 		BaseModel: collection.BaseModel{
 			CreatedAt: util.GenerateTimePtr(),
-			CreatedBy: util.IntPtr(1),
+			CreatedBy: util.GenerateIntPtr(1),
 		},
 	}
 

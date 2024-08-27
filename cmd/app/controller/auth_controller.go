@@ -16,6 +16,8 @@ type AuthController interface {
 
 	SignUpHandler(c *gin.Context)
 	SignUpCallbackHandler(c *gin.Context)
+
+	VerifyEmail(c *gin.Context)
 }
 
 type AuthControllerImpl struct {
@@ -36,6 +38,9 @@ func (controller *AuthControllerImpl) SignUpHandler(c *gin.Context) {
 
 func (controller *AuthControllerImpl) SignUpCallbackHandler(c *gin.Context) {
 
+}
+
+func (controller *AuthControllerImpl) VerifyEmail(c *gin.Context) {
 }
 
 func ProvideAuthController(as auth.OAuthService) *AuthControllerImpl {

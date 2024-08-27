@@ -2,13 +2,16 @@ package service
 
 import (
 	"bytes"
-	"github.com/gin-gonic/gin"
+	"fmt"
 	log "github.com/sirupsen/logrus"
+	"go-shift/cmd/app/domain/dao/collection"
 	"go-shift/cmd/app/domain/dto"
 	"go-shift/cmd/app/domain/dto/system"
+	"go-shift/cmd/app/repository"
 	"gopkg.in/gomail.v2"
 	"html/template"
 	"sync"
+	"time"
 )
 
 var (
@@ -18,11 +21,11 @@ var (
 
 type MailService interface {
 	SendMail(subject string, payload dto.JWTClaimsPayload) error
-	VerifyEmail(c *gin.Context)
 }
 
 type MailServiceImpl struct {
-	dialer *gomail.Dialer
+	mailRepository repository.MailRepository
+	dialer         *gomail.Dialer
 }
 
 func (svc *MailServiceImpl) SendMail(subject string, payload dto.JWTClaimsPayload) error {
@@ -32,9 +35,27 @@ func (svc *MailServiceImpl) SendMail(subject string, payload dto.JWTClaimsPayloa
 		log.Fatalf("Failed to parse HTML template: %v", err)
 	}
 
+	expiredAt := time.Now()
+
+	verification := &collection.EmailVerification{
+		Email:            payload.Email,
+		VerificationType: "verify-new-user",
+		ExpiredAt:        expiredAt,
+	}
+
+	verificationEmail, err := svc.mailRepository.SaveVerificationEmail(verification)
+
+	if err != nil {
+		return err
+	}
+
+	/** TODO: need to be encrypt */
+	token := verificationEmail.ID.Hex()
+
+	log.Info("tokenverificationemail :: ", token)
 	data := system.EmailNewUserTemplate{
 		Name:             payload.Name,
-		VerificationLink: "http://localhost:8087/api/v1/mail/verification",
+		VerificationLink: fmt.Sprintf("http://localhost:8087/api/v1/mail/verification?verificationToken=%s", token),
 	}
 
 	var renderedHTML bytes.Buffer
@@ -56,19 +77,14 @@ func (svc *MailServiceImpl) SendMail(subject string, payload dto.JWTClaimsPayloa
 		return err
 	}
 
-	// TODO: need save to mongodb invitation data
-
 	return nil
 }
 
-func (svc *MailServiceImpl) VerifyEmail(c *gin.Context) {
-	c.JSON(200, "verification email")
-}
-
-func ProvideMailService(dialer *gomail.Dialer) *MailServiceImpl {
+func ProvideMailService(mailRepository repository.MailRepository, dialer *gomail.Dialer) *MailServiceImpl {
 	mailServiceOnce.Do(func() {
 		mailService = &MailServiceImpl{
-			dialer: dialer,
+			mailRepository: mailRepository,
+			dialer:         dialer,
 		}
 	})
 

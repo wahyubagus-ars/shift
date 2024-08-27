@@ -30,6 +30,10 @@ func (controller *GoogleOauthControllerImpl) SignUpCallbackHandler(c *gin.Contex
 	controller.AuthSvc.SignUpCallback(c)
 }
 
+func (controller *GoogleOauthControllerImpl) VerifyEmail(c *gin.Context) {
+	controller.AuthSvc.VerifyEmail(c)
+}
+
 func ProvideGoogleOauthController(as auth.OAuthService) *GoogleOauthControllerImpl {
 	var controller *GoogleOauthControllerImpl
 	googleOauthControllerOnce.Do(func() {

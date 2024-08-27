@@ -6,6 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 	"sync"
+	"time"
 )
 
 var (
@@ -17,6 +18,7 @@ type UserRepository interface {
 	FindUserById(id int) int
 	FindUserByEmail(email string) (table.UserAccount, error)
 	SaveInitiateUser(email string, authenticationId int) (table.UserAccount, error)
+	UpdateEmailVerifiedAt(email string) error
 }
 
 type UserRepositoryImpl struct {
@@ -46,7 +48,7 @@ func (ur *UserRepositoryImpl) SaveInitiateUser(email string, authenticationId in
 		AuthenticationID: authenticationId,
 		BaseModel: table.BaseModel{
 			CreatedAt: util.GenerateTimePtr(),
-			CreatedBy: util.IntPtr(0),
+			CreatedBy: util.GenerateIntPtr(0),
 		},
 	}
 
@@ -56,6 +58,18 @@ func (ur *UserRepositoryImpl) SaveInitiateUser(email string, authenticationId in
 
 	return user, nil
 }
+
+func (ur *UserRepositoryImpl) UpdateEmailVerifiedAt(email string) error {
+	err := ur.mysql.Model(&table.UserAccount{}).Where("email = ?", email).
+		Update("email_verified_at", time.Now()).Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func ProvideUserRepository(mysql *gorm.DB, mongo *mongo.Client) *UserRepositoryImpl {
 	userRepositoyOnce.Do(func() {
 		userRepositoy = &UserRepositoryImpl{
