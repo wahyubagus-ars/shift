@@ -30,15 +30,17 @@ func Init(init *config.Initialization) *gin.Engine {
 
 		auth := api.Group("/auth")
 		{
-			auth.GET("/login", init.AuthController.LoginHandler)
+			auth.GET("/login", init.AuthController.SignInHandler)
 		}
 
 		oauth := api.Group("/oauth")
 		{
 			googleOauth := oauth.Group("/google")
 			{
-				googleOauth.GET("/login-with-google", init.GoogleOauthController.LoginHandler)
-				googleOauth.GET("/callback", init.GoogleOauthController.CallbackHandler)
+				googleOauth.GET("/sign-in", init.GoogleOauthController.SignInHandler)
+				googleOauth.GET("/sign-in-callback", init.GoogleOauthController.SignInCallbackHandler)
+				googleOauth.GET("/sign-up", init.GoogleOauthController.SignUpHandler)
+				googleOauth.GET("/sign-up-callback", init.GoogleOauthController.SignUpCallbackHandler)
 			}
 		}
 

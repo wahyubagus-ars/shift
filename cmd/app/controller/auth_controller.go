@@ -11,19 +11,30 @@ var (
 )
 
 type AuthController interface {
-	LoginHandler(c *gin.Context)
-	CallbackHandler(c *gin.Context)
+	SignInHandler(c *gin.Context)
+	SignInCallbackHandler(c *gin.Context)
+
+	SignUpHandler(c *gin.Context)
+	SignUpCallbackHandler(c *gin.Context)
 }
 
 type AuthControllerImpl struct {
 	AuthSvc auth.OAuthService
 }
 
-func (controller *AuthControllerImpl) LoginHandler(c *gin.Context) {
-	controller.AuthSvc.Login(c)
+func (controller *AuthControllerImpl) SignInHandler(c *gin.Context) {
+	controller.AuthSvc.SignIn(c)
 }
 
-func (controller *AuthControllerImpl) CallbackHandler(c *gin.Context) {
+func (controller *AuthControllerImpl) SignInCallbackHandler(c *gin.Context) {
+
+}
+
+func (controller *AuthControllerImpl) SignUpHandler(c *gin.Context) {
+	controller.AuthSvc.SignIn(c)
+}
+
+func (controller *AuthControllerImpl) SignUpCallbackHandler(c *gin.Context) {
 
 }
 

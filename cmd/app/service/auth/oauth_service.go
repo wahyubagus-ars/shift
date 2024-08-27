@@ -12,22 +12,35 @@ var (
 )
 
 type OAuthService interface {
-	Login(c *gin.Context)
-	Callback(c *gin.Context)
+	SignIn(c *gin.Context)
+	SignInCallback(c *gin.Context)
+	SignUp(c *gin.Context)
+	SignUpCallback(c *gin.Context)
 }
 
 type OAuthServiceImpl struct {
 	userRepository repository.UserRepository
 }
 
-func (svc *OAuthServiceImpl) Login(c *gin.Context) {
+func (svc *OAuthServiceImpl) SignIn(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"response_key": "success",
 		"message":      "login api",
 	})
 }
 
-func (svc *OAuthServiceImpl) Callback(c *gin.Context) {
+func (svc *OAuthServiceImpl) SignInCallback(c *gin.Context) {
+
+}
+
+func (svc *OAuthServiceImpl) SignUp(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"response_key": "success",
+		"message":      "login api",
+	})
+}
+
+func (svc *OAuthServiceImpl) SignUpCallback(c *gin.Context) {
 
 }
 
