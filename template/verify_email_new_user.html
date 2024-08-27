@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email - Shift</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { width: 100%; padding: 20px; background-color: #ffffff; max-width: 600px; margin: 40px auto; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        .header { text-align: center; padding: 20px; background-color: #2d8cf0; color: #ffffff; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .content { padding: 20px; line-height: 1.6; color: #333333; }
+        .content h2 { font-size: 20px; color: #2d8cf0; }
+        .content p { margin: 0 0 20px 0; }
+        .button { display: block; width: 200px; margin: 0 auto 20px auto; padding: 10px; background-color: #2d8cf0; color: #ffffff; text-align: center; text-decoration: none; border-radius: 5px; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #aaaaaa; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Welcome to Shift!</h1>
+    </div>
+    <div class="content">
+        <h2>Hi {{.Name}},</h2>
+        <p>Thank you for registering with Shift. We're excited to have you on board!</p>
+        <p>To get started, please verify your email address by clicking the button below:</p>
+        <a href="{{.VerificationLink}}" class="button">Verify Your Email</a>
+        <p>If you didn’t create an account with Shift, please ignore this email.</p>
+        <p>If you have any questions or need assistance, feel free to reply to this email, and our support team will be happy to help you.</p>
+        <p>Thank you,<br>The Shift Team</p>
+    </div>
+    <div class="footer">
+        <p>© 2024 Shift. All rights reserved.</p>
+        <p>You received this email because you recently signed up for Shift. If you didn’t sign up for this account, you can safely ignore this email.</p>
+    </div>
+</div>
+</body>
+</html>

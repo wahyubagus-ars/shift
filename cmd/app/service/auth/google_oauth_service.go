@@ -7,6 +7,7 @@ import (
 	"go-shift/cmd/app/constant"
 	"go-shift/cmd/app/domain/dao/table"
 	"go-shift/cmd/app/domain/dto"
+	"go-shift/cmd/app/domain/dto/system"
 	"go-shift/cmd/app/repository"
 	"go-shift/cmd/app/service"
 	apiService "go-shift/cmd/app/service/auth/api_service"
@@ -24,6 +25,7 @@ var (
 )
 
 type GoogleOauthServiceImpl struct {
+	mailService           service.MailService
 	redisService          service.RedisService
 	oauthApiService       apiService.OauthApiService
 	userRepository        repository.UserRepository
@@ -33,37 +35,58 @@ type GoogleOauthServiceImpl struct {
 
 func (svc *GoogleOauthServiceImpl) SignIn(c *gin.Context) {
 	redirectUri := os.Getenv("GOOGLE_SIGN_IN_REDIRECT_URI")
-	svc.oauthProcess(c, "sign-in", redirectUri)
+	token, _ := svc.oauthProcess(c, "sign-in", redirectUri)
+
+	data := system.ApiResponse[any]{
+		ResponseKey:     constant.Success.GetResponseStatus(),
+		ResponseMessage: constant.Success.GetResponseMessage(),
+		Data:            nil,
+	}
+
+	c.Header("Authorization-Token", token.IdToken)
+
+	c.JSON(200, data)
 }
 
 func (svc *GoogleOauthServiceImpl) SignInCallback(c *gin.Context) {
-	authorizationCode := c.Query("code")
-	c.Request.Header.Add("Authorization-Code", authorizationCode)
 	svc.SignIn(c)
 }
 
 func (svc *GoogleOauthServiceImpl) SignUp(c *gin.Context) {
 	redirectUri := os.Getenv("GOOGLE_SIGN_UP_REDIRECT_URI")
-	svc.oauthProcess(c, "sign-up", redirectUri)
+	token, payload := svc.oauthProcess(c, "sign-up", redirectUri)
+
+	if err := svc.mailService.SendMail("Action Required: Verify Your Email to Activate Your Shift Account",
+		payload); err != nil {
+		pkg.PanicException(constant.UnknownError)
+	}
+
+	data := system.ApiResponse[any]{
+		ResponseKey:     constant.Success.GetResponseStatus(),
+		ResponseMessage: constant.Success.GetResponseMessage(),
+		Data:            nil,
+	}
+
+	c.Header("Authorization-Token", token.IdToken)
+
+	c.JSON(200, data)
 }
 
 func (svc *GoogleOauthServiceImpl) SignUpCallback(c *gin.Context) {
-	authorizationCode := c.Query("code")
-	c.Request.Header.Add("Authorization-Code", authorizationCode)
 	svc.SignUp(c)
 }
 
-func (svc *GoogleOauthServiceImpl) oauthProcess(c *gin.Context, processType string, redirectUri string) {
+func (svc *GoogleOauthServiceImpl) oauthProcess(c *gin.Context, processType string, redirectUri string) (dto.AccessTokenDto, dto.JWTClaimsPayload) {
 	defer pkg.PanicHandler(c)
 
 	/** TODO: need to move the Authorization-Code to query params*/
-	code := c.Request.Header["Authorization-Code"]
+	code := c.Query("code")
 
 	clientId := os.Getenv("GOOGLE_OAUTH_CLIENT_ID")
 	clientSecret := os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET")
 	getTokenUrl := os.Getenv("GOOGLE_ACCESS_TOKEN_URL")
 
-	token, err := svc.oauthApiService.GetAccessToken(code[0], clientId, clientSecret, getTokenUrl, redirectUri)
+	token, err := svc.oauthApiService.GetAccessToken(code, clientId, clientSecret, getTokenUrl, redirectUri)
 	if err != nil {
 		log.Error("Error when get access token :: ", err)
 		pkg.PanicException(constant.UnknownError)
@@ -128,23 +151,16 @@ func (svc *GoogleOauthServiceImpl) oauthProcess(c *gin.Context, processType stri
 		pkg.PanicException(constant.UnknownError)
 	}
 
-	data := dto.ApiResponse[any]{
-		ResponseKey:     constant.Success.GetResponseStatus(),
-		ResponseMessage: constant.Success.GetResponseMessage(),
-		Data:            nil,
-	}
-
-	c.Header("Authorization-Token", token.IdToken)
-
-	c.JSON(200, data)
+	return token, payload
 }
 
-func ProvideGoogleOauthService(redisService service.RedisService, oauthApiService apiService.OauthApiService,
+func ProvideGoogleOauthService(mailService service.MailService, redisService service.RedisService, oauthApiService apiService.OauthApiService,
 	userRepository repository.UserRepository,
 	userProfileRepository repository.UserProfileRepository,
 	tokenRepository repository.AuthTokenRepository) *GoogleOauthServiceImpl {
 	googleServiceOnce.Do(func() {
 		googleService = &GoogleOauthServiceImpl{
+			mailService:           mailService,
 			redisService:          redisService,
 			oauthApiService:       oauthApiService,
 			userRepository:        userRepository,

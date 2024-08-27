@@ -6,6 +6,7 @@ import (
 	"go-shift/cmd/app/constant"
 	"go-shift/cmd/app/domain/dao/collection"
 	"go-shift/cmd/app/domain/dto"
+	"go-shift/cmd/app/domain/dto/system"
 	"go-shift/cmd/app/repository"
 	"go-shift/cmd/app/util"
 	"go-shift/pkg"
@@ -38,7 +39,7 @@ func (svc *TimeTrackingServiceImpl) GetTimeEntries(c *gin.Context) {
 		pkg.PanicException(constant.UnknownError)
 	}
 
-	apiResponse := &dto.ApiResponse[[]collection.TimeEntry]{
+	apiResponse := &system.ApiResponse[[]collection.TimeEntry]{
 		ResponseKey:     constant.Success.GetResponseStatus(),
 		ResponseMessage: constant.Success.GetResponseMessage(),
 		Data:            timeEntries,

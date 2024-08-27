@@ -1,4 +1,4 @@
-package dto
+package system
 
 type AppError struct {
 	Message string

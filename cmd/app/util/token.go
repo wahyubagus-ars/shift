@@ -5,6 +5,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	log "github.com/sirupsen/logrus"
 	"go-shift/cmd/app/domain/dto"
+	"go-shift/cmd/app/domain/dto/system"
 	"strings"
 )
 
@@ -12,7 +13,7 @@ func GetTokenPayload(token string) (dto.JWTClaimsPayload, error) {
 	parts := strings.Split(token, ".")
 	if len(parts) != 3 {
 		log.Error("Invalid token format")
-		return dto.JWTClaimsPayload{}, &dto.AppError{
+		return dto.JWTClaimsPayload{}, &system.AppError{
 			Message: "Invalid token format",
 		}
 	}

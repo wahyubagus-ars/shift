@@ -22,6 +22,7 @@ type Initialization struct {
 	AuthTokenRepository    repository.AuthTokenRepository
 	TimeTrackingRepository repository.TimeTrackingRepository
 
+	MailService         service.MailService
 	RedisService        service.RedisService
 	AuthService         authServicePkg.OAuthService
 	OauthApiService     apiService.OauthApiService
@@ -29,6 +30,7 @@ type Initialization struct {
 	UserProfileService  service.UserProfileService
 	TimeTrackingService service.TimeTrackingService
 
+	MailController         controller.MailController
 	AuthController         controller.AuthController
 	GoogleOauthController  controller.AuthController
 	WorkspaceController    controller.WorkspaceController
@@ -40,6 +42,7 @@ func Init() *Initialization {
 	mysql := ConnectToMysql()
 	mongodb := ConnectToMongoDb()
 	connectToRedis := ConnectToRedis()
+	mail := InitMail()
 
 	userAccountRepository := repository.ProvideUserRepository(mysql, mongodb)
 	userProfileRepository := repository.ProvideUserProfileRepository(mysql)
@@ -47,17 +50,20 @@ func Init() *Initialization {
 	authTokenRepository := repository.ProvideAuthTokenRepository(mysql)
 	timeTrackingRepository := repository.ProvideTimeTrackingRepository(mongodb)
 
+	mailService := service.ProvideMailService(mail)
 	redisService := service.ProvideRedisService(connectToRedis)
 	workspaceService := service.ProvideWorkspaceService(workspaceRepository)
 
 	authService := authServicePkg.ProvideAuthService(userAccountRepository)
 	oauthApiService := apiService.ProvideOauthApiService()
-	googleOauthService := authServicePkg.ProvideGoogleOauthService(redisService, oauthApiService, userAccountRepository,
-		&repository.UserProfileRepositoryImpl{},
+	googleOauthService := authServicePkg.ProvideGoogleOauthService(mailService, redisService, oauthApiService,
+		userAccountRepository, &repository.UserProfileRepositoryImpl{},
 		authTokenRepository)
+
 	userProfileService := service.ProvideUserProfileService(userProfileRepository)
 	timeTrackingService := service.ProvideTimeTrackingService(timeTrackingRepository)
 
+	mailController := controller.ProvideMailController(mailService)
 	authController := controller.ProvideAuthController(authService)
 	googleOauthController := impl.ProvideGoogleOauthController(googleOauthService)
 	workspaceController := controller.ProvideWorkspaceController(workspaceService)
@@ -74,12 +80,14 @@ func Init() *Initialization {
 		AuthTokenRepository:    authTokenRepository,
 		TimeTrackingRepository: timeTrackingRepository,
 
+		MailService:         mailService,
 		RedisService:        redisService,
 		AuthService:         authService,
 		GoogleOauthService:  googleOauthService,
 		UserProfileService:  userProfileService,
 		TimeTrackingService: timeTrackingService,
 
+		MailController:         mailController,
 		AuthController:         authController,
 		GoogleOauthController:  googleOauthController,
 		WorkspaceController:    workspaceController,
