@@ -54,7 +54,7 @@ func Init() *Initialization {
 
 	mailService := service.ProvideMailService(mailRepository, mail)
 	redisService := service.ProvideRedisService(connectToRedis)
-	workspaceService := service.ProvideWorkspaceService(workspaceRepository)
+	workspaceService := service.ProvideWorkspaceService(workspaceRepository, userAccountRepository)
 
 	authService := authServicePkg.ProvideAuthService(userAccountRepository)
 	oauthApiService := apiService.ProvideOauthApiService()

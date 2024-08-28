@@ -5,7 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"go-shift/cmd/app/constant"
 	"go-shift/cmd/app/domain/dao/collection"
-	"go-shift/cmd/app/domain/dto"
+	"go-shift/cmd/app/domain/dto/request"
 	"go-shift/cmd/app/domain/dto/system"
 	"go-shift/cmd/app/repository"
 	"go-shift/cmd/app/util"
@@ -50,7 +50,7 @@ func (svc *TimeTrackingServiceImpl) GetTimeEntries(c *gin.Context) {
 func (svc *TimeTrackingServiceImpl) SubmitTimeEntry(c *gin.Context) {
 	defer pkg.PanicHandler(c)
 
-	timeEntryReq := dto.TimeEntryRequest{}
+	timeEntryReq := request.TimeEntryRequest{}
 
 	if err := c.ShouldBindJSON(&timeEntryReq); err != nil {
 		pkg.PanicException(constant.UnknownError)

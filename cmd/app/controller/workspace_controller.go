@@ -13,14 +13,19 @@ var (
 
 type WorkspaceController interface {
 	GetWorkspace(c *gin.Context)
+	CreateWorkspace(c *gin.Context)
 }
 
 type WorkspaceControllerImpl struct {
 	workspaceService service.WorkspaceService
 }
 
-func (wc *WorkspaceControllerImpl) GetWorkspace(c *gin.Context) {
-	wc.workspaceService.GetWorkspace()
+func (controller *WorkspaceControllerImpl) GetWorkspace(c *gin.Context) {
+	controller.workspaceService.GetWorkspace()
+}
+
+func (controller *WorkspaceControllerImpl) CreateWorkspace(c *gin.Context) {
+	controller.workspaceService.CreateWorkspace(c)
 }
 
 func ProvideWorkspaceController(workspaceService service.WorkspaceService) *WorkspaceControllerImpl {

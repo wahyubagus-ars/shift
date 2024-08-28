@@ -15,7 +15,7 @@ var (
 )
 
 type UserRepository interface {
-	FindUserById(id int) int
+	FindUserById(id int) (*table.UserAccount, error)
 	FindUserByEmail(email string) (table.UserAccount, error)
 	SaveInitiateUser(email string, authenticationId int) (table.UserAccount, error)
 	UpdateEmailVerifiedAt(email string) error
@@ -26,8 +26,14 @@ type UserRepositoryImpl struct {
 	mongodb *mongo.Database
 }
 
-func (ur *UserRepositoryImpl) FindUserById(id int) int {
-	return 1
+func (ur *UserRepositoryImpl) FindUserById(id int) (*table.UserAccount, error) {
+	var user table.UserAccount
+	if err := ur.mysql.First(&user, id).Error; err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+
 }
 
 func (ur *UserRepositoryImpl) FindUserByEmail(email string) (table.UserAccount, error) {

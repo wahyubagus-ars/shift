@@ -51,6 +51,13 @@ func Init(init *config.Initialization) *gin.Engine {
 			tracking.POST("/time-entries", init.TimeTrackingController.SubmitTimeEntry)
 		}
 
+		/** workspace api endpoint */
+		workspace := api.Group("/workspace")
+		{
+			workspace.GET("", init.WorkspaceController.GetWorkspace)
+			workspace.POST("", init.WorkspaceController.CreateWorkspace)
+		}
+
 	}
 
 	return r
