@@ -8,6 +8,7 @@ import (
 	"go-shift/cmd/app/domain/dto"
 	"go-shift/cmd/app/domain/dto/system"
 	"go-shift/cmd/app/repository"
+	"go-shift/cmd/app/util"
 	"gopkg.in/gomail.v2"
 	"html/template"
 	"sync"
@@ -20,7 +21,7 @@ var (
 )
 
 type MailService interface {
-	SendMail(subject string, payload dto.JWTClaimsPayload) error
+	SendMail(subject string, payload dto.JWTClaimsPayloadGoogle) error
 }
 
 type MailServiceImpl struct {
@@ -28,7 +29,7 @@ type MailServiceImpl struct {
 	dialer         *gomail.Dialer
 }
 
-func (svc *MailServiceImpl) SendMail(subject string, payload dto.JWTClaimsPayload) error {
+func (svc *MailServiceImpl) SendMail(subject string, payload dto.JWTClaimsPayloadGoogle) error {
 	htmlFile := "template/verify_email_new_user.html"
 	tmpl, err := template.ParseFiles(htmlFile)
 	if err != nil {
@@ -52,9 +53,8 @@ func (svc *MailServiceImpl) SendMail(subject string, payload dto.JWTClaimsPayloa
 	/** TODO: need to be encrypt */
 	token := verificationEmail.ID.Hex()
 
-	log.Info("tokenverificationemail :: ", token)
 	data := system.EmailNewUserTemplate{
-		Name:             payload.Name,
+		Name:             util.CapitalizeFirstLetter(payload.Name),
 		VerificationLink: fmt.Sprintf("http://localhost:8087/api/v1/mail/verification?verificationToken=%s", token),
 	}
 

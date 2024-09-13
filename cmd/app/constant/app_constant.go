@@ -25,11 +25,13 @@ func (r ResponseStatus) GetResponseMessage() string {
 // Constant Redis Key
 const (
 	UserAccountData RedisKey = iota + 1
+	GoogleAccessToken
+	GoogleRefreshToken
+	GoogleIdToken
 	AccessToken
 	RefreshToken
-	IdToken
 )
 
 func (rk RedisKey) GetRedisKey() string {
-	return [...]string{"USER_ACCOUNT_DATA", "ACCESS_TOKEN", "REFRESH_TOKEN", "ID_TOKEN"}[rk-1]
+	return [...]string{"USER_ACCOUNT_DATA", "GOOGLE_ACCESS_TOKEN", "GOOGLE_REFRESH_TOKEN", "GOOGLE_ID_TOKEN", "ACCESS_TOKEN", "REFRESH_TOKEN"}[rk-1]
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-shift/cmd/app/constant"
 	"go-shift/cmd/app/domain/dao/table"
+	"go-shift/cmd/app/domain/dto"
 	"go-shift/cmd/app/domain/dto/system"
 	"go-shift/cmd/app/repository"
 	"go-shift/cmd/app/util"
@@ -28,7 +29,7 @@ func (svc *UserProfileServiceImpl) GetUserProfile(c *gin.Context) {
 	defer pkg.PanicHandler(c)
 
 	token := c.Request.Header["Authorization-Token"]
-	tokenPayload, _ := util.GetTokenPayload(token[0])
+	tokenPayload, _ := util.GetTokenPayload(dto.JWTClaimsPayloadGoogle{}, token[0])
 
 	userProfile, err := svc.userProfileRepository.FindByUserAccountEmail(tokenPayload.Email)
 	if err != nil && userProfile == nil {
